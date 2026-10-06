@@ -114,6 +114,7 @@ main {
 
 label,
 .search-field,
+.category-filter,
 .group-filter,
 .subgroup-filter {
   min-width: 0;
@@ -123,6 +124,7 @@ label,
 
 label span,
 .filter-title span,
+.category-filter > span,
 .subgroup-filter > span {
   color: var(--muted);
   font-size: 0.78rem;
@@ -474,6 +476,7 @@ li,
   }
 
   .group-filter,
+  .category-filter,
   .subgroup-filter {
     grid-column: 1 / -1;
   }

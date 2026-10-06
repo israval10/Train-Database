@@ -14,6 +14,24 @@ const groupLabels = {
   waist: "Core",
 };
 
+const bodyCategoryLabels = {
+  all: "Todas",
+  torso: "Torso",
+  arms: "Brazos",
+  legs: "Piernas",
+  core: "Core",
+  cardio: "Cardio",
+};
+
+const bodyCategoryGroups = {
+  all: [],
+  torso: ["back", "chest", "shoulders", "neck"],
+  arms: ["upper arms", "lower arms"],
+  legs: ["upper legs", "lower legs"],
+  core: ["waist"],
+  cardio: ["cardio"],
+};
+
 const equipmentGroups = [
   {
     label: "Peso corporal y asistencia",
@@ -60,6 +78,7 @@ const state = {
   exercises: [],
   filtered: [],
   visibleCount: PAGE_SIZE,
+  groupCategory: "all",
   group: "all",
   subgroup: "all",
   equipment: "all",
@@ -72,6 +91,9 @@ const els = {
   resultLabel: document.querySelector("#result-label"),
   activeFilterCopy: document.querySelector("#active-filter-copy"),
   searchInput: document.querySelector("#search-input"),
+  categoryChips: document.querySelector("#category-chips"),
+  categoryPrev: document.querySelector("#category-prev"),
+  categoryNext: document.querySelector("#category-next"),
   groupChips: document.querySelector("#group-chips"),
   groupPrev: document.querySelector("#group-prev"),
   groupNext: document.querySelector("#group-next"),
@@ -133,6 +155,7 @@ async function init() {
   state.filtered = state.exercises;
 
   els.totalCount.textContent = state.exercises.length.toLocaleString("es");
+  renderCategoryChips();
   renderGroupChips();
   renderEquipmentOptions();
   renderSubgroupOptions();
@@ -155,8 +178,10 @@ function bindEvents() {
 
   bindChipScroller(els.groupChips, els.groupPrev, els.groupNext);
   bindChipScroller(els.subgroupChips, els.subgroupPrev, els.subgroupNext);
+  bindChipScroller(els.categoryChips, els.categoryPrev, els.categoryNext);
 
   els.clearFilters.addEventListener("click", () => {
+    state.groupCategory = "all";
     state.group = "all";
     state.subgroup = "all";
     state.equipment = "all";
@@ -164,6 +189,7 @@ function bindEvents() {
     state.visibleCount = PAGE_SIZE;
     els.searchInput.value = "";
     els.equipmentSelect.value = "all";
+    renderCategoryChips();
     renderGroupChips();
     renderSubgroupOptions();
     applyFilters();
@@ -180,8 +206,23 @@ function bindEvents() {
   });
 }
 
+function renderCategoryChips() {
+  const buttons = Object.entries(bodyCategoryLabels).map(([value, label]) =>
+    createCategoryChip(label, value, state.groupCategory === value),
+  );
+  els.categoryChips.replaceChildren(...buttons);
+  requestAnimationFrame(() =>
+    updateScrollButtons(els.categoryChips, els.categoryPrev, els.categoryNext),
+  );
+}
+
 function renderGroupChips() {
-  const groups = uniqueSorted(state.exercises.map((exercise) => exercise.body_part));
+  const allGroups = uniqueSorted(state.exercises.map((exercise) => exercise.body_part));
+  const categoryGroups = bodyCategoryGroups[state.groupCategory] || [];
+  const groups =
+    state.groupCategory === "all"
+      ? allGroups
+      : categoryGroups.filter((group) => allGroups.includes(group));
   const allButton = createGroupChip("Todos", "all", state.group === "all");
   const groupButtons = groups.map((group) =>
     createGroupChip(formatLabel(group), group, state.group === group),
@@ -198,6 +239,21 @@ function createBaseChip(label, value, isActive) {
   button.setAttribute("role", "option");
   button.setAttribute("aria-selected", String(isActive));
   button.dataset.value = value;
+  return button;
+}
+
+function createCategoryChip(label, value, isActive) {
+  const button = createBaseChip(label, value, isActive);
+  button.addEventListener("click", () => {
+    state.groupCategory = value;
+    state.group = "all";
+    state.subgroup = "all";
+    state.visibleCount = PAGE_SIZE;
+    renderCategoryChips();
+    renderGroupChips();
+    renderSubgroupOptions();
+    applyFilters();
+  });
   return button;
 }
 
@@ -226,16 +282,22 @@ function createSubgroupChip(label, value, isActive) {
 }
 
 function renderSubgroupOptions() {
-  const scopedExercises = state.exercises.filter((exercise) => exercise.body_part === state.group);
+  const scopedExercises = state.exercises.filter((exercise) => {
+    const byCategory =
+      state.groupCategory === "all" ||
+      (bodyCategoryGroups[state.groupCategory] || []).includes(exercise.body_part);
+    const byGroup = state.group === "all" || exercise.body_part === state.group;
+    return byCategory && byGroup;
+  });
   const subgroups = uniqueSorted(scopedExercises.flatMap(getFilterSubgroups));
 
-  if (state.group === "all" || !subgroups.includes(state.subgroup)) {
+  if (!subgroups.includes(state.subgroup)) {
     state.subgroup = "all";
   }
 
   const allButton = createSubgroupChip("Todos", "all", state.subgroup === "all");
   const subgroupButtons =
-    state.group === "all"
+    state.groupCategory === "all" && state.group === "all"
       ? []
       : subgroups.map((subgroup) =>
           createSubgroupChip(formatLabel(subgroup), subgroup, state.subgroup === subgroup),
@@ -302,11 +364,14 @@ function renderEquipmentOptions() {
 
 function applyFilters() {
   state.filtered = state.exercises.filter((exercise) => {
+    const byCategory =
+      state.groupCategory === "all" ||
+      (bodyCategoryGroups[state.groupCategory] || []).includes(exercise.body_part);
     const byGroup = state.group === "all" || exercise.body_part === state.group;
     const bySubgroup = matchesSubgroup(exercise, state.subgroup);
     const byEquipment = state.equipment === "all" || exercise.equipment === state.equipment;
     const byQuery = !state.query || exercise.searchText.includes(state.query);
-    return byGroup && bySubgroup && byEquipment && byQuery;
+    return byCategory && byGroup && bySubgroup && byEquipment && byQuery;
   });
 
   renderResultMeta();
@@ -319,6 +384,7 @@ function renderResultMeta() {
   els.resultLabel.textContent = count === 1 ? "resultado" : "resultados";
 
   const parts = [];
+  if (state.groupCategory !== "all") parts.push(bodyCategoryLabels[state.groupCategory]);
   if (state.group !== "all") parts.push(formatLabel(state.group));
   if (state.subgroup !== "all") parts.push(formatLabel(state.subgroup));
   if (state.equipment !== "all") parts.push(formatLabel(state.equipment));
