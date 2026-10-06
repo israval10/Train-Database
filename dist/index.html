@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Catalogo filtrable de ejercicios con GIFs, grupos musculares y detalles tecnicos."
+    />
+    <title>Atlas de Ejercicios</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Catalogo movil</p>
+        <h1>Atlas de Ejercicios</h1>
+      </div>
+      <div class="stat-pill">
+        <strong id="total-count">0</strong>
+        <span>ejercicios</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="filters" aria-label="Filtros del catalogo">
+        <label class="search-field">
+          <span>Buscar</span>
+          <input
+            id="search-input"
+            type="search"
+            autocomplete="off"
+            placeholder="Nombre, equipo o musculo"
+          />
+        </label>
+
+        <div>
+          <div class="filter-title">
+            <span>Grupo muscular</span>
+            <button id="clear-filters" type="button">Limpiar</button>
+          </div>
+          <div id="group-chips" class="chip-row" role="listbox" aria-label="Grupos musculares"></div>
+        </div>
+
+        <div class="select-grid">
+          <label>
+            <span>Subgrupo muscular</span>
+            <select id="subgroup-select"></select>
+          </label>
+          <label>
+            <span>Equipo</span>
+            <select id="equipment-select"></select>
+          </label>
+        </div>
+      </section>
+
+      <section class="result-bar" aria-live="polite">
+        <div>
+          <strong id="result-count">0</strong>
+          <span id="result-label">resultados</span>
+        </div>
+        <span id="active-filter-copy">Todos los grupos</span>
+      </section>
+
+      <section id="exercise-grid" class="exercise-grid" aria-label="Ejercicios"></section>
+
+      <button id="load-more" class="load-more" type="button">Cargar mas</button>
+
+      <p id="empty-state" class="empty-state" hidden>
+        No hay ejercicios con esos filtros. Prueba con otro grupo o borra la busqueda.
+      </p>
+    </main>
+
+    <dialog id="exercise-dialog" class="exercise-dialog">
+      <article class="detail-panel">
+        <button id="close-dialog" class="close-button" type="button" aria-label="Cerrar detalle">
+          x
+        </button>
+        <div class="detail-media">
+          <img id="detail-gif" src="" alt="" />
+        </div>
+        <div class="detail-content">
+          <p id="detail-category" class="eyebrow"></p>
+          <h2 id="detail-title"></h2>
+          <div id="detail-tags" class="detail-tags"></div>
+          <section>
+            <h3>Pasos</h3>
+            <ol id="detail-steps"></ol>
+          </section>
+          <section>
+            <h3>Musculos secundarios</h3>
+            <p id="detail-secondary"></p>
+          </section>
+          <p id="detail-attribution" class="attribution"></p>
+        </div>
+      </article>
+    </dialog>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
