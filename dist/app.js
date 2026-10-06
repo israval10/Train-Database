@@ -14,6 +14,46 @@ const groupLabels = {
   waist: "Core",
 };
 
+const equipmentGroups = [
+  {
+    label: "Peso corporal y asistencia",
+    items: ["body weight", "assisted", "weighted"],
+  },
+  {
+    label: "Pesos libres",
+    items: ["dumbbell", "barbell", "ez barbell", "olympic barbell", "kettlebell", "trap bar"],
+  },
+  {
+    label: "Maquinas",
+    items: [
+      "cable",
+      "leverage machine",
+      "smith machine",
+      "sled machine",
+      "elliptical machine",
+      "skierg machine",
+      "stationary bike",
+      "stepmill machine",
+      "upper body ergometer",
+    ],
+  },
+  {
+    label: "Bandas y accesorios",
+    items: [
+      "band",
+      "resistance band",
+      "bosu ball",
+      "medicine ball",
+      "stability ball",
+      "roller",
+      "rope",
+      "wheel roller",
+      "tire",
+      "hammer",
+    ],
+  },
+];
+
 const state = {
   exercises: [],
   filtered: [],
@@ -225,9 +265,32 @@ function updateScrollButtons(row, previousButton, nextButton) {
 
 function renderEquipmentOptions() {
   const equipment = uniqueSorted(state.exercises.map((exercise) => exercise.equipment));
-  const options = [new Option("Todo el equipo", "all")];
-  equipment.forEach((item) => options.push(new Option(formatLabel(item), item)));
-  els.equipmentSelect.replaceChildren(...options);
+  const available = new Set(equipment);
+  const used = new Set();
+  const allOption = new Option("Todo el equipo", "all");
+  const groups = equipmentGroups
+    .map((group) => {
+      const groupElement = document.createElement("optgroup");
+      groupElement.label = group.label;
+      group.items
+        .filter((item) => available.has(item))
+        .forEach((item) => {
+          used.add(item);
+          groupElement.append(new Option(formatLabel(item), item));
+        });
+      return groupElement;
+    })
+    .filter((groupElement) => groupElement.children.length > 0);
+
+  const uncategorized = equipment.filter((item) => !used.has(item));
+  if (uncategorized.length > 0) {
+    const otherGroup = document.createElement("optgroup");
+    otherGroup.label = "Otros";
+    uncategorized.forEach((item) => otherGroup.append(new Option(formatLabel(item), item)));
+    groups.push(otherGroup);
+  }
+
+  els.equipmentSelect.replaceChildren(allOption, ...groups);
 }
 
 function applyFilters() {
