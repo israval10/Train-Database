@@ -54,6 +54,8 @@ const equipmentGroups = [
   },
 ];
 
+const coreSubgroups = new Set(["abs", "obliques", "hip flexors", "lower back"]);
+
 const state = {
   exercises: [],
   filtered: [],
@@ -100,7 +102,12 @@ const formatLabel = (value) => {
 const uniqueSorted = (values) =>
   [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
-const getFilterSubgroups = (exercise) => [exercise.target].filter(Boolean);
+const getFilterSubgroups = (exercise) => {
+  if (exercise.body_part !== "waist") return [exercise.target].filter(Boolean);
+
+  return uniqueSorted([exercise.target, exercise.muscle_group, ...(exercise.secondary_muscles || [])])
+    .filter((muscle) => coreSubgroups.has(muscle));
+};
 
 const matchesSubgroup = (exercise, subgroup) =>
   subgroup === "all" || getFilterSubgroups(exercise).includes(subgroup);
