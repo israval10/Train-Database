@@ -31,7 +31,11 @@ const els = {
   activeFilterCopy: document.querySelector("#active-filter-copy"),
   searchInput: document.querySelector("#search-input"),
   groupChips: document.querySelector("#group-chips"),
+  groupPrev: document.querySelector("#group-prev"),
+  groupNext: document.querySelector("#group-next"),
   subgroupChips: document.querySelector("#subgroup-chips"),
+  subgroupPrev: document.querySelector("#subgroup-prev"),
+  subgroupNext: document.querySelector("#subgroup-next"),
   equipmentSelect: document.querySelector("#equipment-select"),
   clearFilters: document.querySelector("#clear-filters"),
   grid: document.querySelector("#exercise-grid"),
@@ -102,6 +106,9 @@ function bindEvents() {
     applyFilters();
   });
 
+  bindChipScroller(els.groupChips, els.groupPrev, els.groupNext);
+  bindChipScroller(els.subgroupChips, els.subgroupPrev, els.subgroupNext);
+
   els.clearFilters.addEventListener("click", () => {
     state.group = "all";
     state.subgroup = "all";
@@ -133,6 +140,7 @@ function renderGroupChips() {
     createGroupChip(formatLabel(group), group, state.group === group),
   );
   els.groupChips.replaceChildren(allButton, ...groupButtons);
+  requestAnimationFrame(() => updateScrollButtons(els.groupChips, els.groupPrev, els.groupNext));
 }
 
 function createBaseChip(label, value, isActive) {
@@ -187,6 +195,32 @@ function renderSubgroupOptions() {
         );
 
   els.subgroupChips.replaceChildren(allButton, ...subgroupButtons);
+  requestAnimationFrame(() =>
+    updateScrollButtons(els.subgroupChips, els.subgroupPrev, els.subgroupNext),
+  );
+}
+
+function bindChipScroller(row, previousButton, nextButton) {
+  previousButton.addEventListener("click", () => scrollChipRow(row, -1));
+  nextButton.addEventListener("click", () => scrollChipRow(row, 1));
+  row.addEventListener("scroll", () => updateScrollButtons(row, previousButton, nextButton), {
+    passive: true,
+  });
+  window.addEventListener("resize", () => updateScrollButtons(row, previousButton, nextButton));
+}
+
+function scrollChipRow(row, direction) {
+  row.scrollBy({
+    left: direction * Math.max(row.clientWidth * 0.75, 180),
+    behavior: "smooth",
+  });
+}
+
+function updateScrollButtons(row, previousButton, nextButton) {
+  const maxScroll = Math.max(row.scrollWidth - row.clientWidth, 0);
+  const hasOverflow = maxScroll > 2;
+  previousButton.disabled = !hasOverflow || row.scrollLeft <= 2;
+  nextButton.disabled = !hasOverflow || row.scrollLeft >= maxScroll - 2;
 }
 
 function renderEquipmentOptions() {

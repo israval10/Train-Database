@@ -96,13 +96,16 @@ h1 {
 main {
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 14px 14px 34px;
+  overflow-x: clip;
+  padding: 14px clamp(10px, 3vw, 24px) 34px;
 }
 
 .filters {
   display: grid;
+  min-width: 0;
   gap: 14px;
-  padding: 14px;
+  overflow: hidden;
+  padding: clamp(14px, 3vw, 28px);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -111,7 +114,9 @@ main {
 
 label,
 .search-field,
+.group-filter,
 .subgroup-filter {
+  min-width: 0;
   display: grid;
   gap: 7px;
 }
@@ -127,6 +132,7 @@ label span,
 
 input,
 select {
+  min-width: 0;
   width: 100%;
   min-height: 44px;
   border: 1px solid var(--line);
@@ -162,12 +168,44 @@ button:focus-visible {
   padding: 0 10px;
 }
 
+.chip-scroller {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .chip-row {
   display: flex;
   gap: 8px;
+  min-width: 0;
   overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: thin;
+  overscroll-behavior-inline: contain;
+  padding: 2px 0 6px;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.scroll-button:disabled {
+  cursor: default;
+  opacity: 0.28;
 }
 
 .chip {
@@ -195,6 +233,7 @@ button:focus-visible {
 
 .equipment-filter {
   display: grid;
+  min-width: 0;
 }
 
 .result-bar {
@@ -430,12 +469,18 @@ li,
 
 @media (min-width: 920px) {
   .filters {
-    grid-template-columns:
-      minmax(220px, 0.55fr)
-      minmax(320px, 0.95fr)
-      minmax(320px, 1.05fr)
-      minmax(180px, 0.45fr);
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.34fr);
     align-items: end;
+  }
+
+  .group-filter,
+  .subgroup-filter {
+    grid-column: 1 / -1;
+  }
+
+  .equipment-filter {
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .exercise-grid {

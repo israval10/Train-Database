@@ -34,22 +34,63 @@
           />
         </label>
 
-        <div>
+        <div class="group-filter">
           <div class="filter-title">
             <span>Grupo muscular</span>
             <button id="clear-filters" type="button">Limpiar</button>
           </div>
-          <div id="group-chips" class="chip-row" role="listbox" aria-label="Grupos musculares"></div>
+          <div class="chip-scroller">
+            <button
+              id="group-prev"
+              class="scroll-button"
+              type="button"
+              aria-label="Ver grupos anteriores"
+            >
+              &lt;
+            </button>
+            <div
+              id="group-chips"
+              class="chip-row"
+              role="listbox"
+              aria-label="Grupos musculares"
+            ></div>
+            <button
+              id="group-next"
+              class="scroll-button"
+              type="button"
+              aria-label="Ver mas grupos"
+            >
+              &gt;
+            </button>
+          </div>
         </div>
 
         <div class="subgroup-filter">
           <span>Subgrupo muscular</span>
-          <div
-            id="subgroup-chips"
-            class="chip-row subgroup-row"
-            role="listbox"
-            aria-label="Subgrupos musculares"
-          ></div>
+          <div class="chip-scroller">
+            <button
+              id="subgroup-prev"
+              class="scroll-button"
+              type="button"
+              aria-label="Ver subgrupos anteriores"
+            >
+              &lt;
+            </button>
+            <div
+              id="subgroup-chips"
+              class="chip-row subgroup-row"
+              role="listbox"
+              aria-label="Subgrupos musculares"
+            ></div>
+            <button
+              id="subgroup-next"
+              class="scroll-button"
+              type="button"
+              aria-label="Ver mas subgrupos"
+            >
+              &gt;
+            </button>
+          </div>
         </div>
 
         <div class="equipment-filter">
