@@ -31,7 +31,7 @@ const els = {
   activeFilterCopy: document.querySelector("#active-filter-copy"),
   searchInput: document.querySelector("#search-input"),
   groupChips: document.querySelector("#group-chips"),
-  subgroupSelect: document.querySelector("#subgroup-select"),
+  subgroupChips: document.querySelector("#subgroup-chips"),
   equipmentSelect: document.querySelector("#equipment-select"),
   clearFilters: document.querySelector("#clear-filters"),
   grid: document.querySelector("#exercise-grid"),
@@ -56,11 +56,10 @@ const formatLabel = (value) => {
 const uniqueSorted = (values) =>
   [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
-const getSubgroups = (exercise) =>
-  uniqueSorted([exercise.target, exercise.muscle_group, ...(exercise.secondary_muscles || [])]);
+const getFilterSubgroups = (exercise) => [exercise.target].filter(Boolean);
 
 const matchesSubgroup = (exercise, subgroup) =>
-  subgroup === "all" || getSubgroups(exercise).includes(subgroup);
+  subgroup === "all" || getFilterSubgroups(exercise).includes(subgroup);
 
 const normalizeExercise = (exercise) => ({
   ...exercise,
@@ -97,12 +96,6 @@ function bindEvents() {
     applyFilters();
   });
 
-  els.subgroupSelect.addEventListener("change", () => {
-    state.subgroup = els.subgroupSelect.value;
-    state.visibleCount = PAGE_SIZE;
-    applyFilters();
-  });
-
   els.equipmentSelect.addEventListener("change", () => {
     state.equipment = els.equipmentSelect.value;
     state.visibleCount = PAGE_SIZE;
@@ -135,17 +128,26 @@ function bindEvents() {
 
 function renderGroupChips() {
   const groups = uniqueSorted(state.exercises.map((exercise) => exercise.body_part));
-  const allButton = createChip("Todos", "all", state.group === "all");
-  els.groupChips.replaceChildren(allButton, ...groups.map((group) => createChip(formatLabel(group), group, state.group === group)));
+  const allButton = createGroupChip("Todos", "all", state.group === "all");
+  const groupButtons = groups.map((group) =>
+    createGroupChip(formatLabel(group), group, state.group === group),
+  );
+  els.groupChips.replaceChildren(allButton, ...groupButtons);
 }
 
-function createChip(label, value, isActive) {
+function createBaseChip(label, value, isActive) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = `chip${isActive ? " is-active" : ""}`;
   button.textContent = label;
   button.setAttribute("role", "option");
   button.setAttribute("aria-selected", String(isActive));
+  button.dataset.value = value;
+  return button;
+}
+
+function createGroupChip(label, value, isActive) {
+  const button = createBaseChip(label, value, isActive);
   button.addEventListener("click", () => {
     state.group = value;
     state.subgroup = "all";
@@ -157,17 +159,34 @@ function createChip(label, value, isActive) {
   return button;
 }
 
+function createSubgroupChip(label, value, isActive) {
+  const button = createBaseChip(label, value, isActive);
+  button.addEventListener("click", () => {
+    state.subgroup = value;
+    state.visibleCount = PAGE_SIZE;
+    renderSubgroupOptions();
+    applyFilters();
+  });
+  return button;
+}
+
 function renderSubgroupOptions() {
-  const scopedExercises =
+  const scopedExercises = state.exercises.filter((exercise) => exercise.body_part === state.group);
+  const subgroups = uniqueSorted(scopedExercises.flatMap(getFilterSubgroups));
+
+  if (state.group === "all" || !subgroups.includes(state.subgroup)) {
+    state.subgroup = "all";
+  }
+
+  const allButton = createSubgroupChip("Todos", "all", state.subgroup === "all");
+  const subgroupButtons =
     state.group === "all"
-      ? state.exercises
-      : state.exercises.filter((exercise) => exercise.body_part === state.group);
-  const subgroups = uniqueSorted(scopedExercises.flatMap(getSubgroups));
-  const options = [new Option("Todos los subgrupos", "all")];
-  subgroups.forEach((subgroup) => options.push(new Option(formatLabel(subgroup), subgroup)));
-  els.subgroupSelect.replaceChildren(...options);
-  els.subgroupSelect.value = subgroups.includes(state.subgroup) ? state.subgroup : "all";
-  state.subgroup = els.subgroupSelect.value;
+      ? []
+      : subgroups.map((subgroup) =>
+          createSubgroupChip(formatLabel(subgroup), subgroup, state.subgroup === subgroup),
+        );
+
+  els.subgroupChips.replaceChildren(allButton, ...subgroupButtons);
 }
 
 function renderEquipmentOptions() {
