@@ -16,9 +16,11 @@
         <p class="eyebrow">Catalogo movil</p>
         <h1>Atlas de Ejercicios</h1>
       </div>
-      <div class="stat-pill">
-        <strong id="total-count">0</strong>
-        <span>ejercicios</span>
+      <div class="language-toggle" role="group" aria-label="Idioma">
+        <button id="lang-es" class="is-active" type="button" data-lang="es" aria-pressed="true">
+          ES
+        </button>
+        <button id="lang-en" type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </header>
 
@@ -26,7 +28,7 @@
       <section class="filters" aria-label="Filtros del catalogo">
         <div class="filter-panel-header">
           <div>
-            <span>Opciones de busqueda</span>
+            <span id="filter-options-label">Opciones de busqueda</span>
             <strong id="filter-summary">Todos los grupos</strong>
           </div>
           <button
@@ -42,7 +44,7 @@
 
         <div id="filter-body" class="filter-body">
           <label class="search-field">
-            <span>Buscar</span>
+            <span id="search-label">Buscar</span>
             <input
               id="search-input"
               type="search"
@@ -52,7 +54,7 @@
           </label>
 
           <div class="category-filter">
-            <span>Categoria corporal</span>
+            <span id="category-label">Categoria corporal</span>
             <div class="chip-scroller">
               <button
                 id="category-prev"
@@ -81,7 +83,7 @@
 
           <div class="group-filter">
             <div class="filter-title">
-              <span>Grupo muscular</span>
+              <span id="group-label">Grupo muscular</span>
               <button id="clear-filters" type="button">Limpiar</button>
             </div>
             <div class="chip-scroller">
@@ -111,7 +113,7 @@
           </div>
 
           <div class="subgroup-filter">
-            <span>Subgrupo muscular</span>
+            <span id="subgroup-label">Subgrupo muscular</span>
             <div class="chip-scroller">
               <button
                 id="subgroup-prev"
@@ -140,7 +142,7 @@
 
           <div class="equipment-filter">
             <label>
-              <span>Equipo</span>
+              <span id="equipment-label">Equipo</span>
               <select id="equipment-select"></select>
             </label>
           </div>
@@ -177,11 +179,11 @@
           <h2 id="detail-title"></h2>
           <div id="detail-tags" class="detail-tags"></div>
           <section>
-            <h3>Pasos</h3>
+            <h3 id="steps-heading">Pasos</h3>
             <ol id="detail-steps"></ol>
           </section>
           <section>
-            <h3>Musculos secundarios</h3>
+            <h3 id="secondary-heading">Musculos secundarios</h3>
             <p id="detail-secondary"></p>
           </section>
           <p id="detail-attribution" class="attribution"></p>
