@@ -24,108 +24,126 @@
 
     <main>
       <section class="filters" aria-label="Filtros del catalogo">
-        <label class="search-field">
-          <span>Buscar</span>
-          <input
-            id="search-input"
-            type="search"
-            autocomplete="off"
-            placeholder="Nombre, equipo o musculo"
-          />
-        </label>
-
-        <div class="category-filter">
-          <span>Categoria corporal</span>
-          <div class="chip-scroller">
-            <button
-              id="category-prev"
-              class="scroll-button"
-              type="button"
-              aria-label="Ver categorias anteriores"
-            >
-              &lt;
-            </button>
-            <div
-              id="category-chips"
-              class="chip-row"
-              role="listbox"
-              aria-label="Categorias corporales"
-            ></div>
-            <button
-              id="category-next"
-              class="scroll-button"
-              type="button"
-              aria-label="Ver mas categorias"
-            >
-              &gt;
-            </button>
+        <div class="filter-panel-header">
+          <div>
+            <span>Opciones de busqueda</span>
+            <strong id="filter-summary">Todos los grupos</strong>
           </div>
+          <button
+            id="filter-toggle"
+            class="filter-toggle"
+            type="button"
+            aria-controls="filter-body"
+            aria-expanded="true"
+          >
+            Ocultar filtros
+          </button>
         </div>
 
-        <div class="group-filter">
-          <div class="filter-title">
-            <span>Grupo muscular</span>
-            <button id="clear-filters" type="button">Limpiar</button>
-          </div>
-          <div class="chip-scroller">
-            <button
-              id="group-prev"
-              class="scroll-button"
-              type="button"
-              aria-label="Ver grupos anteriores"
-            >
-              &lt;
-            </button>
-            <div
-              id="group-chips"
-              class="chip-row"
-              role="listbox"
-              aria-label="Grupos musculares"
-            ></div>
-            <button
-              id="group-next"
-              class="scroll-button"
-              type="button"
-              aria-label="Ver mas grupos"
-            >
-              &gt;
-            </button>
-          </div>
-        </div>
-
-        <div class="subgroup-filter">
-          <span>Subgrupo muscular</span>
-          <div class="chip-scroller">
-            <button
-              id="subgroup-prev"
-              class="scroll-button"
-              type="button"
-              aria-label="Ver subgrupos anteriores"
-            >
-              &lt;
-            </button>
-            <div
-              id="subgroup-chips"
-              class="chip-row subgroup-row"
-              role="listbox"
-              aria-label="Subgrupos musculares"
-            ></div>
-            <button
-              id="subgroup-next"
-              class="scroll-button"
-              type="button"
-              aria-label="Ver mas subgrupos"
-            >
-              &gt;
-            </button>
-          </div>
-        </div>
-
-        <div class="equipment-filter">
-          <label>
-            <span>Equipo</span>
-            <select id="equipment-select"></select>
+        <div id="filter-body" class="filter-body">
+          <label class="search-field">
+            <span>Buscar</span>
+            <input
+              id="search-input"
+              type="search"
+              autocomplete="off"
+              placeholder="Nombre, equipo o musculo"
+            />
           </label>
+
+          <div class="category-filter">
+            <span>Categoria corporal</span>
+            <div class="chip-scroller">
+              <button
+                id="category-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver categorias anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="category-chips"
+                class="chip-row"
+                role="listbox"
+                aria-label="Categorias corporales"
+              ></div>
+              <button
+                id="category-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas categorias"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          <div class="group-filter">
+            <div class="filter-title">
+              <span>Grupo muscular</span>
+              <button id="clear-filters" type="button">Limpiar</button>
+            </div>
+            <div class="chip-scroller">
+              <button
+                id="group-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver grupos anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="group-chips"
+                class="chip-row"
+                role="listbox"
+                aria-label="Grupos musculares"
+              ></div>
+              <button
+                id="group-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas grupos"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          <div class="subgroup-filter">
+            <span>Subgrupo muscular</span>
+            <div class="chip-scroller">
+              <button
+                id="subgroup-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver subgrupos anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="subgroup-chips"
+                class="chip-row subgroup-row"
+                role="listbox"
+                aria-label="Subgrupos musculares"
+              ></div>
+              <button
+                id="subgroup-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas subgrupos"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          <div class="equipment-filter">
+            <label>
+              <span>Equipo</span>
+              <select id="equipment-select"></select>
+            </label>
+          </div>
         </div>
       </section>
 

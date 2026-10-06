@@ -42,7 +42,7 @@ button {
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -101,15 +101,75 @@ main {
 }
 
 .filters {
+  position: sticky;
+  top: var(--sticky-top, 78px);
+  z-index: 25;
+  display: grid;
+  min-width: 0;
+  max-height: calc(100dvh - var(--sticky-top, 78px) - 10px);
+  overflow: auto;
+  padding: clamp(10px, 2vw, 14px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 18px 38px rgba(23, 23, 23, 0.16);
+  backdrop-filter: blur(16px);
+}
+
+.filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.filter-panel-header div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.filter-panel-header span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.filter-panel-header strong {
+  overflow: hidden;
+  max-width: 58vw;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-toggle {
+  flex: 0 0 auto;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
+  color: var(--accent-strong);
+  font-weight: 900;
+  padding: 0 12px;
+}
+
+.filter-body {
   display: grid;
   min-width: 0;
   gap: 14px;
+  padding-top: 14px;
+}
+
+.filter-body[hidden] {
+  display: none;
+}
+
+.filters.is-collapsed {
   overflow: hidden;
-  padding: clamp(14px, 3vw, 28px);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
 }
 
 label,
@@ -470,7 +530,7 @@ li,
 }
 
 @media (min-width: 920px) {
-  .filters {
+  .filter-body {
     grid-template-columns: minmax(0, 1fr) minmax(220px, 0.34fr);
     align-items: end;
   }

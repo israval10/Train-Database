@@ -86,6 +86,11 @@ const state = {
 };
 
 const els = {
+  appHeader: document.querySelector(".app-header"),
+  filters: document.querySelector(".filters"),
+  filterBody: document.querySelector("#filter-body"),
+  filterToggle: document.querySelector("#filter-toggle"),
+  filterSummary: document.querySelector("#filter-summary"),
   totalCount: document.querySelector("#total-count"),
   resultCount: document.querySelector("#result-count"),
   resultLabel: document.querySelector("#result-label"),
@@ -161,6 +166,7 @@ async function init() {
   renderSubgroupOptions();
   applyFilters();
   bindEvents();
+  syncStickyOffset();
 }
 
 function bindEvents() {
@@ -179,6 +185,15 @@ function bindEvents() {
   bindChipScroller(els.groupChips, els.groupPrev, els.groupNext);
   bindChipScroller(els.subgroupChips, els.subgroupPrev, els.subgroupNext);
   bindChipScroller(els.categoryChips, els.categoryPrev, els.categoryNext);
+
+  els.filterToggle.addEventListener("click", () => {
+    const isCollapsed = els.filters.classList.toggle("is-collapsed");
+    els.filterToggle.setAttribute("aria-expanded", String(!isCollapsed));
+    els.filterBody.hidden = isCollapsed;
+    els.filterToggle.textContent = isCollapsed ? "Mostrar filtros" : "Ocultar filtros";
+  });
+
+  window.addEventListener("resize", syncStickyOffset);
 
   els.clearFilters.addEventListener("click", () => {
     state.groupCategory = "all";
@@ -388,7 +403,14 @@ function renderResultMeta() {
   if (state.group !== "all") parts.push(formatLabel(state.group));
   if (state.subgroup !== "all") parts.push(formatLabel(state.subgroup));
   if (state.equipment !== "all") parts.push(formatLabel(state.equipment));
-  els.activeFilterCopy.textContent = parts.length ? parts.join(" / ") : "Todos los grupos";
+  const summary = parts.length ? parts.join(" / ") : "Todos los grupos";
+  els.activeFilterCopy.textContent = summary;
+  els.filterSummary.textContent = summary;
+}
+
+function syncStickyOffset() {
+  const headerHeight = els.appHeader?.offsetHeight || 76;
+  document.documentElement.style.setProperty("--sticky-top", `${headerHeight}px`);
 }
 
 function renderCards() {
