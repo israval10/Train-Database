@@ -43,6 +43,13 @@ const copy = {
     nextGroups: "Ver mas grupos",
     previousSubgroups: "Ver subgrupos anteriores",
     nextSubgroups: "Ver mas subgrupos",
+    muscleAtlasKicker: "Mapa muscular 3D",
+    muscleAtlasTitle: "Explora el cuerpo por grupos",
+    muscleAtlasDescription: "Toca una zona del cuerpo para filtrar ejercicios por grupo muscular.",
+    muscleAtlasAria: "Cuerpo humano interactivo",
+    muscleAtlasGroups: "Grupos",
+    muscleAtlasSubgroups: "Subgrupos",
+    exercisesShort: "ej.",
     uncategorized: "Otros",
     bodyCategories: {
       all: "Todas",
@@ -110,6 +117,13 @@ const copy = {
     nextGroups: "See more groups",
     previousSubgroups: "See previous subgroups",
     nextSubgroups: "See more subgroups",
+    muscleAtlasKicker: "3D muscle map",
+    muscleAtlasTitle: "Explore the body by groups",
+    muscleAtlasDescription: "Tap a body zone to filter exercises by muscle group.",
+    muscleAtlasAria: "Interactive human body",
+    muscleAtlasGroups: "Groups",
+    muscleAtlasSubgroups: "Subgroups",
+    exercisesShort: "ex.",
     uncategorized: "Other",
     bodyCategories: {
       all: "All",
@@ -149,6 +163,67 @@ const bodyCategoryGroups = {
   legs: ["upper legs", "lower legs"],
   core: ["waist"],
   cardio: ["cardio"],
+};
+
+const atlasGroupOrder = [
+  "neck",
+  "shoulders",
+  "chest",
+  "back",
+  "upper arms",
+  "lower arms",
+  "waist",
+  "upper legs",
+  "lower legs",
+  "cardio",
+];
+
+const atlasGroupColors = {
+  back: "#3f7fc7",
+  cardio: "#c74646",
+  chest: "#d26b4a",
+  "lower arms": "#8d70d6",
+  "lower legs": "#2f9a78",
+  neck: "#b06f3f",
+  shoulders: "#d8a33f",
+  "upper arms": "#b45fa8",
+  "upper legs": "#4f9a55",
+  waist: "#4c8f8a",
+};
+
+const atlasZones = {
+  neck: { top: "11%", left: "50%", width: "16%", height: "7%" },
+  shoulders: { top: "22%", left: "50%", width: "34%", height: "8%" },
+  chest: { top: "34%", left: "39%", width: "21%", height: "10%" },
+  back: { top: "34%", left: "61%", width: "21%", height: "10%" },
+  "upper arms": { top: "40%", left: "20%", width: "22%", height: "12%" },
+  "lower arms": { top: "61%", left: "18%", width: "22%", height: "12%" },
+  waist: { top: "53%", left: "50%", width: "24%", height: "10%" },
+  "upper legs": { top: "72%", left: "39%", width: "22%", height: "11%" },
+  "lower legs": { top: "90%", left: "62%", width: "22%", height: "11%" },
+  cardio: { top: "43%", left: "50%", width: "18%", height: "9%" },
+};
+
+const atlasTargetGroups = {
+  abductors: "upper legs",
+  abs: "waist",
+  adductors: "upper legs",
+  biceps: "upper arms",
+  calves: "lower legs",
+  "cardiovascular system": "cardio",
+  delts: "shoulders",
+  forearms: "lower arms",
+  glutes: "upper legs",
+  hamstrings: "upper legs",
+  lats: "back",
+  "levator scapulae": "neck",
+  pectorals: "chest",
+  quads: "upper legs",
+  "serratus anterior": "chest",
+  spine: "waist",
+  traps: "back",
+  triceps: "upper arms",
+  "upper back": "back",
 };
 
 const equipmentGroups = [
@@ -235,6 +310,16 @@ const els = {
   subgroupChips: document.querySelector("#subgroup-chips"),
   subgroupPrev: document.querySelector("#subgroup-prev"),
   subgroupNext: document.querySelector("#subgroup-next"),
+  muscleAtlasKicker: document.querySelector("#muscle-atlas-kicker"),
+  muscleAtlasTitle: document.querySelector("#muscle-atlas-title"),
+  muscleAtlasDescription: document.querySelector("#muscle-atlas-description"),
+  bodyStage: document.querySelector(".body-stage"),
+  bodyModel: document.querySelector("#body-model"),
+  bodyZones: document.querySelector("#body-zones"),
+  atlasGroupsLabel: document.querySelector("#atlas-groups-label"),
+  atlasSubgroupsLabel: document.querySelector("#atlas-subgroups-label"),
+  atlasGroups: document.querySelector("#atlas-groups"),
+  atlasSubgroups: document.querySelector("#atlas-subgroups"),
   equipmentSelect: document.querySelector("#equipment-select"),
   clearFilters: document.querySelector("#clear-filters"),
   grid: document.querySelector("#exercise-grid"),
@@ -297,12 +382,14 @@ async function init() {
   const data = await response.json();
   state.exercises = data.map(normalizeExercise);
   state.filtered = state.exercises;
+  applyInitialUrlFilters();
 
   translateStaticText();
   renderCategoryChips();
   renderGroupChips();
   renderEquipmentOptions();
   renderSubgroupOptions();
+  renderMuscleAtlas();
   applyFilters();
   bindEvents();
   syncStickyOffset();
@@ -328,6 +415,23 @@ function bindEvents() {
   bindChipScroller(els.groupChips, els.groupPrev, els.groupNext);
   bindChipScroller(els.subgroupChips, els.subgroupPrev, els.subgroupNext);
   bindChipScroller(els.categoryChips, els.categoryPrev, els.categoryNext);
+
+  if (els.bodyZones && els.atlasGroups && els.atlasSubgroups) {
+    els.bodyZones.addEventListener("click", (event) => {
+      const zone = event.target.closest("[data-group]");
+      if (zone) selectAtlasGroup(zone.dataset.group);
+    });
+
+    els.atlasGroups.addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-group]");
+      if (chip) selectAtlasGroup(chip.dataset.group);
+    });
+
+    els.atlasSubgroups.addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-subgroup]");
+      if (chip) selectAtlasSubgroup(chip.dataset.subgroup, chip.dataset.group);
+    });
+  }
 
   els.filterToggle.addEventListener("click", () => {
     const isCollapsed = els.filters.classList.toggle("is-collapsed");
@@ -373,10 +477,29 @@ function setLanguage(lang) {
   renderGroupChips();
   renderEquipmentOptions();
   renderSubgroupOptions();
+  renderMuscleAtlas();
   renderResultMeta();
   renderCards();
   if (state.activeExercise) renderDetail(state.activeExercise);
   syncStickyOffset();
+}
+
+function applyInitialUrlFilters() {
+  const params = new URLSearchParams(window.location.search);
+  const group = params.get("group");
+  const subgroup = params.get("subgroup");
+  const groups = new Set(state.exercises.map((exercise) => exercise.body_part));
+
+  if (group && groups.has(group)) {
+    state.groupCategory = getCategoryForGroup(group);
+    state.group = group;
+  }
+
+  if (subgroup) {
+    const scoped = state.exercises.filter((exercise) => state.group === "all" || exercise.body_part === state.group);
+    const subgroups = new Set(scoped.flatMap(getFilterSubgroups));
+    if (subgroups.has(subgroup)) state.subgroup = subgroup;
+  }
 }
 
 function translateStaticText() {
@@ -407,6 +530,12 @@ function translateStaticText() {
   els.groupNext.setAttribute("aria-label", text.nextGroups);
   els.subgroupPrev.setAttribute("aria-label", text.previousSubgroups);
   els.subgroupNext.setAttribute("aria-label", text.nextSubgroups);
+  if (els.muscleAtlasKicker) els.muscleAtlasKicker.textContent = text.muscleAtlasKicker;
+  if (els.muscleAtlasTitle) els.muscleAtlasTitle.textContent = text.muscleAtlasTitle;
+  if (els.muscleAtlasDescription) els.muscleAtlasDescription.textContent = text.muscleAtlasDescription;
+  if (els.bodyStage) els.bodyStage.setAttribute("aria-label", text.muscleAtlasAria);
+  if (els.atlasGroupsLabel) els.atlasGroupsLabel.textContent = text.muscleAtlasGroups;
+  if (els.atlasSubgroupsLabel) els.atlasSubgroupsLabel.textContent = text.muscleAtlasSubgroups;
   els.languageButtons.forEach((button) => {
     const isActive = button.dataset.lang === state.lang;
     button.classList.toggle("is-active", isActive);
@@ -517,6 +646,136 @@ function renderSubgroupOptions() {
   );
 }
 
+function renderMuscleAtlas() {
+  if (!els.bodyModel || !els.bodyZones || !els.atlasGroups || !els.atlasSubgroups) return;
+
+  const groupCounts = countBy(state.exercises, (exercise) => exercise.body_part);
+  const availableGroups = atlasGroupOrder.filter((group) => groupCounts[group]);
+  const selectedGroup = state.group === "all" ? "" : state.group;
+  const selectedSubgroup = state.subgroup === "all" ? "" : state.subgroup;
+  const selectedColor = atlasGroupColors[selectedGroup] || "var(--accent)";
+
+  els.bodyModel.dataset.activeGroup = selectedGroup;
+  els.bodyModel.style.setProperty("--selected-muscle", selectedColor);
+
+  els.bodyZones.replaceChildren(
+    ...availableGroups.map((group) => {
+      const zone = atlasZones[group];
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `body-zone${selectedGroup === group ? " is-active" : ""}`;
+      button.dataset.group = group;
+      button.style.setProperty("--zone-color", atlasGroupColors[group]);
+      button.style.top = zone.top;
+      button.style.left = zone.left;
+      button.style.width = zone.width;
+      button.style.height = zone.height;
+      button.textContent = formatLabel(group);
+      button.setAttribute(
+        "aria-label",
+        `${formatLabel(group)}: ${groupCounts[group].toLocaleString(state.lang)} ${copy[state.lang].exercisesShort}`,
+      );
+      button.onclick = () => selectAtlasGroup(group);
+      return button;
+    }),
+  );
+
+  els.atlasGroups.replaceChildren(
+    ...availableGroups.map((group) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `atlas-chip${selectedGroup === group ? " is-active" : ""}`;
+      button.dataset.group = group;
+      button.style.setProperty("--zone-color", atlasGroupColors[group]);
+      button.onclick = () => selectAtlasGroup(group);
+
+      const label = document.createElement("strong");
+      label.textContent = formatLabel(group);
+
+      const count = document.createElement("span");
+      count.textContent = `${groupCounts[group].toLocaleString(state.lang)} ${copy[state.lang].exercisesShort}`;
+
+      button.append(label, count);
+      return button;
+    }),
+  );
+
+  const scopedExercises = state.exercises.filter((exercise) => {
+    const byCategory =
+      state.groupCategory === "all" ||
+      (bodyCategoryGroups[state.groupCategory] || []).includes(exercise.body_part);
+    const byGroup = state.group === "all" || exercise.body_part === state.group;
+    return byCategory && byGroup;
+  });
+  const subgroupCounts = countBy(scopedExercises, (exercise) => getFilterSubgroups(exercise));
+  const subgroups = Object.keys(subgroupCounts).sort((a, b) => {
+    const groupA = atlasTargetGroups[a] || "";
+    const groupB = atlasTargetGroups[b] || "";
+    return groupA.localeCompare(groupB) || a.localeCompare(b);
+  });
+
+  els.atlasSubgroups.replaceChildren(
+    ...subgroups.map((subgroup) => {
+      const targetGroup = atlasTargetGroups[subgroup] || selectedGroup || "waist";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `subgroup-dot${selectedSubgroup === subgroup ? " is-active" : ""}`;
+      button.dataset.group = targetGroup;
+      button.dataset.subgroup = subgroup;
+      button.style.setProperty("--zone-color", atlasGroupColors[targetGroup] || "var(--accent)");
+      button.onclick = () => selectAtlasSubgroup(subgroup, targetGroup);
+      button.textContent = `${formatLabel(subgroup)} · ${subgroupCounts[subgroup].toLocaleString(state.lang)}`;
+      return button;
+    }),
+  );
+}
+
+function countBy(items, getter) {
+  return items.reduce((counts, item) => {
+    const values = Array.isArray(getter(item)) ? getter(item) : [getter(item)];
+    values.filter(Boolean).forEach((value) => {
+      counts[value] = (counts[value] || 0) + 1;
+    });
+    return counts;
+  }, {});
+}
+
+function selectAtlasGroup(group) {
+  state.groupCategory = getCategoryForGroup(group);
+  state.group = group;
+  state.subgroup = "all";
+  state.visibleCount = PAGE_SIZE;
+  renderCategoryChips();
+  renderGroupChips();
+  renderSubgroupOptions();
+  applyFilters();
+  scrollResultsIntoView();
+}
+
+function selectAtlasSubgroup(subgroup, group) {
+  state.groupCategory = getCategoryForGroup(group);
+  state.group = group;
+  state.subgroup = subgroup;
+  state.visibleCount = PAGE_SIZE;
+  renderCategoryChips();
+  renderGroupChips();
+  renderSubgroupOptions();
+  applyFilters();
+  scrollResultsIntoView();
+}
+
+function getCategoryForGroup(group) {
+  return (
+    Object.entries(bodyCategoryGroups).find(
+      ([category, groups]) => category !== "all" && groups.includes(group),
+    )?.[0] || "all"
+  );
+}
+
+function scrollResultsIntoView() {
+  document.querySelector(".result-bar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function bindChipScroller(row, previousButton, nextButton) {
   previousButton.addEventListener("click", () => scrollChipRow(row, -1));
   nextButton.addEventListener("click", () => scrollChipRow(row, 1));
@@ -583,6 +842,7 @@ function applyFilters() {
     return byCategory && byGroup && bySubgroup && byEquipment && byQuery;
   });
 
+  renderMuscleAtlas();
   renderResultMeta();
   renderCards();
 }

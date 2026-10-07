@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Catalogo filtrable de ejercicios con GIFs, grupos musculares y detalles tecnicos."
+    />
+    <title>Atlas de Ejercicios</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Catalogo movil</p>
+        <h1>Atlas de Ejercicios</h1>
+      </div>
+      <nav class="top-nav" aria-label="Navegacion principal">
+        <a href="index.html">Home</a>
+        <div class="language-toggle" role="group" aria-label="Idioma">
+          <button id="lang-es" class="is-active" type="button" data-lang="es" aria-pressed="true">
+            ES
+          </button>
+          <button id="lang-en" type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="filters" aria-label="Filtros del catalogo">
+        <div class="filter-panel-header">
+          <div>
+            <span id="filter-options-label">Opciones de busqueda</span>
+            <strong id="filter-summary">Todos los grupos</strong>
+          </div>
+          <button
+            id="filter-toggle"
+            class="filter-toggle"
+            type="button"
+            aria-controls="filter-body"
+            aria-expanded="true"
+          >
+            Ocultar filtros
+          </button>
+        </div>
+
+        <div id="filter-body" class="filter-body">
+          <label class="search-field">
+            <span id="search-label">Buscar</span>
+            <input
+              id="search-input"
+              type="search"
+              autocomplete="off"
+              placeholder="Nombre, equipo o musculo"
+            />
+          </label>
+
+          <div class="category-filter">
+            <span id="category-label">Categoria corporal</span>
+            <div class="chip-scroller">
+              <button
+                id="category-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver categorias anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="category-chips"
+                class="chip-row"
+                role="listbox"
+                aria-label="Categorias corporales"
+              ></div>
+              <button
+                id="category-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas categorias"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          <div class="group-filter">
+            <div class="filter-title">
+              <span id="group-label">Grupo muscular</span>
+              <button id="clear-filters" type="button">Limpiar</button>
+            </div>
+            <div class="chip-scroller">
+              <button
+                id="group-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver grupos anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="group-chips"
+                class="chip-row"
+                role="listbox"
+                aria-label="Grupos musculares"
+              ></div>
+              <button
+                id="group-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas grupos"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          <div class="subgroup-filter">
+            <span id="subgroup-label">Subgrupo muscular</span>
+            <div class="chip-scroller">
+              <button
+                id="subgroup-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver subgrupos anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="subgroup-chips"
+                class="chip-row subgroup-row"
+                role="listbox"
+                aria-label="Subgrupos musculares"
+              ></div>
+              <button
+                id="subgroup-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas subgrupos"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          <div class="equipment-filter">
+            <label>
+              <span id="equipment-label">Equipo</span>
+              <select id="equipment-select"></select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="result-bar" aria-live="polite">
+        <div>
+          <strong id="result-count">0</strong>
+          <span id="result-label">resultados</span>
+        </div>
+        <span id="active-filter-copy">Todos los grupos</span>
+      </section>
+
+      <section id="exercise-grid" class="exercise-grid" aria-label="Ejercicios"></section>
+
+      <button id="load-more" class="load-more" type="button">Cargar mas</button>
+
+      <p id="empty-state" class="empty-state" hidden>
+        No hay ejercicios con esos filtros. Prueba con otro grupo o borra la busqueda.
+      </p>
+    </main>
+
+    <dialog id="exercise-dialog" class="exercise-dialog">
+      <article class="detail-panel">
+        <button id="close-dialog" class="close-button" type="button" aria-label="Cerrar detalle">
+          x
+        </button>
+        <div class="detail-media">
+          <img id="detail-gif" src="" alt="" />
+        </div>
+        <div class="detail-content">
+          <p id="detail-category" class="eyebrow"></p>
+          <h2 id="detail-title"></h2>
+          <div id="detail-tags" class="detail-tags"></div>
+          <section>
+            <h3 id="steps-heading">Pasos</h3>
+            <ol id="detail-steps"></ol>
+          </section>
+          <section>
+            <h3 id="secondary-heading">Musculos secundarios</h3>
+            <p id="detail-secondary"></p>
+          </section>
+          <p id="detail-attribution" class="attribution"></p>
+        </div>
+      </article>
+    </dialog>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

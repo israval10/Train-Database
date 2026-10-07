@@ -101,6 +101,29 @@ h1 {
   color: #fff;
 }
 
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.top-nav a,
+.primary-link {
+  display: inline-grid;
+  min-height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+  font-weight: 900;
+  padding: 0 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 main {
   width: min(1180px, 100%);
   margin: 0 auto;
@@ -304,6 +327,408 @@ button:focus-visible {
 .equipment-filter {
   display: grid;
   min-width: 0;
+}
+
+.muscle-atlas {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+  padding: clamp(14px, 3vw, 22px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(35, 122, 87, 0.11), transparent 48%),
+    linear-gradient(225deg, rgba(201, 95, 61, 0.12), transparent 45%),
+    #fffdfa;
+  box-shadow: var(--shadow);
+}
+
+.atlas-copy {
+  display: grid;
+  gap: 7px;
+}
+
+.atlas-copy h2 {
+  font-size: clamp(1.18rem, 4vw, 1.65rem);
+  line-height: 1.1;
+}
+
+.atlas-copy p:not(.eyebrow) {
+  max-width: 58ch;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.atlas-layout {
+  display: grid;
+  gap: 18px;
+  align-items: center;
+}
+
+.body-stage {
+  position: relative;
+  display: grid;
+  min-height: 620px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 50% 72%, rgba(35, 122, 87, 0.18), transparent 38%),
+    linear-gradient(160deg, #171717, #312d29 56%, #161412);
+  perspective: 900px;
+}
+
+.muscle-viewer {
+  cursor: grab;
+  touch-action: none;
+}
+
+.muscle-viewer:active {
+  cursor: grabbing;
+}
+
+#muscle-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  outline: none;
+}
+
+.muscle-tooltip {
+  position: absolute;
+  z-index: 6;
+  max-width: min(220px, calc(100% - 28px));
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(20, 19, 17, 0.88);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.2;
+  padding: 8px 10px;
+  pointer-events: none;
+  transform: translate(12px, -120%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.model-credit {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+.body-model {
+  --selected-muscle: var(--accent);
+  position: relative;
+  width: min(260px, 66vw);
+  height: 470px;
+  transform: rotateX(8deg) rotateY(-18deg);
+  transform-style: preserve-3d;
+  animation: body-turn 12s ease-in-out infinite alternate;
+}
+
+.body-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 1%;
+  width: 60%;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(23, 23, 23, 0.17);
+  filter: blur(8px);
+  transform: translateX(-50%) translateZ(-70px);
+}
+
+.body-part,
+.body-heart {
+  position: absolute;
+  left: 50%;
+  border: 1px solid rgba(23, 23, 23, 0.14);
+  background:
+    radial-gradient(circle at 36% 22%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(145deg, #d9d1c6, #9d958c);
+  box-shadow:
+    inset -16px -20px 34px rgba(23, 23, 23, 0.15),
+    inset 12px 16px 28px rgba(255, 255, 255, 0.45),
+    0 18px 28px rgba(23, 23, 23, 0.12);
+  transform-style: preserve-3d;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.head {
+  top: 3%;
+  width: 58px;
+  height: 72px;
+  border-radius: 48% 48% 44% 44%;
+  transform: translateX(-50%) translateZ(26px);
+}
+
+.neck {
+  top: 17%;
+  width: 34px;
+  height: 44px;
+  border-radius: 16px;
+  transform: translateX(-50%) translateZ(14px);
+}
+
+.torso {
+  top: 23%;
+  width: 126px;
+  height: 164px;
+  border-radius: 46% 46% 34% 34%;
+  transform: translateX(-50%) translateZ(18px);
+}
+
+.waist {
+  top: 49%;
+  width: 90px;
+  height: 86px;
+  border-radius: 38% 38% 46% 46%;
+  transform: translateX(-50%) translateZ(20px);
+}
+
+.upper-arm,
+.lower-arm,
+.upper-leg,
+.lower-leg {
+  border-radius: 999px;
+}
+
+.upper-arm {
+  top: 26%;
+  width: 38px;
+  height: 138px;
+}
+
+.upper-arm.left {
+  transform: translateX(-152px) rotateZ(13deg) rotateY(-12deg);
+}
+
+.upper-arm.right {
+  transform: translateX(114px) rotateZ(-13deg) rotateY(12deg);
+}
+
+.lower-arm {
+  top: 48%;
+  width: 31px;
+  height: 132px;
+}
+
+.lower-arm.left {
+  transform: translateX(-171px) rotateZ(7deg) rotateY(-16deg);
+}
+
+.lower-arm.right {
+  transform: translateX(139px) rotateZ(-7deg) rotateY(16deg);
+}
+
+.upper-leg {
+  top: 63%;
+  width: 47px;
+  height: 132px;
+}
+
+.upper-leg.left {
+  transform: translateX(-52px) rotateZ(4deg) rotateY(-8deg);
+}
+
+.upper-leg.right {
+  transform: translateX(7px) rotateZ(-4deg) rotateY(8deg);
+}
+
+.lower-leg {
+  top: 83%;
+  width: 36px;
+  height: 112px;
+}
+
+.lower-leg.left {
+  transform: translateX(-48px) rotateZ(2deg) rotateY(-8deg);
+}
+
+.lower-leg.right {
+  transform: translateX(12px) rotateZ(-2deg) rotateY(8deg);
+}
+
+.body-heart {
+  top: 31%;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #d65a52;
+  transform: translateX(-23%) translateZ(44px);
+}
+
+.body-model[data-active-group="neck"] .neck,
+.body-model[data-active-group="chest"] .torso,
+.body-model[data-active-group="back"] .torso,
+.body-model[data-active-group="waist"] .waist,
+.body-model[data-active-group="cardio"] .body-heart,
+.body-model[data-active-group="shoulders"] .upper-arm,
+.body-model[data-active-group="upper arms"] .upper-arm,
+.body-model[data-active-group="lower arms"] .lower-arm,
+.body-model[data-active-group="upper legs"] .upper-leg,
+.body-model[data-active-group="lower legs"] .lower-leg {
+  background:
+    radial-gradient(circle at 34% 18%, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0) 32%),
+    var(--selected-muscle);
+  box-shadow:
+    0 0 0 5px rgba(255, 255, 255, 0.62),
+    0 0 34px color-mix(in srgb, var(--selected-muscle) 50%, transparent),
+    inset -16px -20px 34px rgba(23, 23, 23, 0.18),
+    inset 12px 16px 28px rgba(255, 255, 255, 0.34);
+}
+
+.body-zones {
+  position: absolute;
+  inset: 0;
+}
+
+.body-zone {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  min-width: 68px;
+  min-height: 34px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--zone-color) 68%, #ffffff);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--zone-color) 14%, rgba(255, 255, 255, 0.9));
+  color: #171717;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0.88;
+  padding: 6px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.body-zone::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid color-mix(in srgb, var(--zone-color) 42%, transparent);
+  border-radius: inherit;
+  content: "";
+}
+
+.body-zone.is-active {
+  background: var(--zone-color);
+  color: #fff;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.atlas-panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.atlas-panel > div {
+  display: grid;
+  gap: 8px;
+}
+
+.atlas-selection {
+  justify-items: center;
+  text-align: center;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.atlas-selection strong {
+  font-size: 1.22rem;
+  line-height: 1.1;
+}
+
+.atlas-selection .primary-link {
+  justify-self: center;
+  margin-top: 4px;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.atlas-panel span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.atlas-chips,
+.subgroup-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.atlas-chip,
+.subgroup-dot {
+  border: 1px solid color-mix(in srgb, var(--zone-color) 44%, var(--line));
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+}
+
+.atlas-chip {
+  display: grid;
+  min-width: min(168px, 100%);
+  gap: 3px;
+  padding: 9px 10px;
+}
+
+.atlas-chip strong {
+  font-size: 0.86rem;
+}
+
+.atlas-chip span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: none;
+}
+
+.atlas-chip.is-active,
+.subgroup-dot.is-active {
+  background: var(--zone-color);
+  color: #fff;
+}
+
+.atlas-chip.is-active span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.subgroup-dot {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.home-main {
+  width: min(1280px, 100%);
+}
+
+.home-atlas {
+  min-height: calc(100dvh - var(--sticky-top, 78px) - 28px);
+  align-content: center;
 }
 
 .result-bar {
@@ -558,6 +983,10 @@ li,
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .atlas-layout {
+    grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1fr);
+  }
+
   .detail-panel {
     grid-template-columns: 42% 58%;
   }
@@ -567,10 +996,24 @@ li,
   }
 }
 
+@keyframes body-turn {
+  from {
+    transform: rotateX(8deg) rotateY(-18deg);
+  }
+
+  to {
+    transform: rotateX(8deg) rotateY(18deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
+  }
+
+  .body-model {
+    animation: none;
   }
 }
