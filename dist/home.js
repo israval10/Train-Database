@@ -28,6 +28,28 @@ const copy = {
       "upper arms": "Brazos",
       "upper legs": "Piernas",
       waist: "Core",
+      abductors: "Abductores",
+      abs: "Abdominales",
+      adductors: "Aductores",
+      biceps: "Biceps",
+      calves: "Pantorrillas",
+      "cardiovascular system": "Sistema cardiovascular",
+      delts: "Deltoides",
+      forearms: "Antebrazos",
+      glutes: "Gluteos",
+      hamstrings: "Isquiotibiales",
+      "hip flexors": "Flexores de cadera",
+      lats: "Dorsales",
+      "levator scapulae": "Elevador de escapula",
+      "lower back": "Zona lumbar",
+      obliques: "Oblicuos",
+      pectorals: "Pectorales",
+      quads: "Cuadriceps",
+      "serratus anterior": "Serrato anterior",
+      spine: "Estabilizadores de columna",
+      traps: "Trapecios",
+      triceps: "Triceps",
+      "upper back": "Espalda alta",
     },
   },
   en: {
@@ -56,6 +78,7 @@ const copy = {
       "upper arms": "Arms",
       "upper legs": "Legs",
       waist: "Core",
+      "cardiovascular system": "Cardiovascular System",
     },
   },
 };
@@ -86,52 +109,34 @@ const atlasGroupColors = {
   waist: "#1fb3a7",
 };
 
-const atlasTargetGroups = {
-  abductors: "upper legs",
-  abs: "waist",
-  adductors: "upper legs",
-  biceps: "upper arms",
-  calves: "lower legs",
-  "cardiovascular system": "cardio",
-  delts: "shoulders",
-  forearms: "lower arms",
-  glutes: "upper legs",
-  hamstrings: "upper legs",
-  lats: "back",
-  "levator scapulae": "neck",
-  pectorals: "chest",
-  quads: "upper legs",
-  "serratus anterior": "chest",
-  spine: "waist",
-  traps: "back",
-  triceps: "upper arms",
-  "upper back": "back",
+const subgroupAtlas = {
+  "hip flexors": { group: "waist", color: "#25b9aa" },
+  "lower back": { group: "waist", color: "#168f86" },
+  obliques: { group: "waist", color: "#18aeb9" },
+  lats: { group: "back", color: "#b58d47" },
+  traps: { group: "back", color: "#e76f9b" },
+  "upper back": { group: "back", color: "#c57db5" },
+  "cardiovascular system": { group: "cardio", color: "#d92e43", special: true },
+  pectorals: { group: "chest", color: "#a7cc10" },
+  "serratus anterior": { group: "chest", color: "#18b8b2" },
+  forearms: { group: "lower arms", color: "#f39a17" },
+  calves: { group: "lower legs", color: "#1db5dc" },
+  "levator scapulae": { group: "neck", color: "#ec6095" },
+  delts: { group: "shoulders", color: "#e42d3f" },
+  biceps: { group: "upper arms", color: "#d93248" },
+  triceps: { group: "upper arms", color: "#d12b45" },
+  abductors: { group: "upper legs", color: "#2d8bc8" },
+  adductors: { group: "upper legs", color: "#1aa0c4" },
+  glutes: { group: "upper legs", color: "#8f82c5" },
+  hamstrings: { group: "upper legs", color: "#2f79bf" },
+  quads: { group: "upper legs", color: "#328dca" },
+  abs: { group: "waist", color: "#2aad50" },
+  spine: { group: "waist", color: "#16a698" },
 };
 
-const subgroupToneOffsets = {
-  "levator scapulae": [0, 0.08, 0.08],
-  delts: [0.01, 0.08, 0.02],
-  pectorals: [0, 0.1, 0.03],
-  "serratus anterior": [0.025, 0.1, -0.03],
-  traps: [-0.015, 0.08, 0.04],
-  lats: [0.02, 0.12, -0.04],
-  "upper back": [-0.035, 0.08, -0.01],
-  biceps: [-0.02, 0.1, 0.05],
-  triceps: [0.025, 0.12, -0.04],
-  forearms: [0.015, 0.08, 0.02],
-  abs: [0, 0.12, 0.04],
-  obliques: [0.025, 0.1, -0.02],
-  "hip flexors": [-0.025, 0.08, 0.01],
-  "lower back": [0.04, 0.1, -0.06],
-  spine: [-0.05, -0.05, 0.08],
-  glutes: [-0.015, 0.08, 0.02],
-  hamstrings: [0.035, 0.1, -0.04],
-  quads: [0, 0.12, 0.05],
-  adductors: [-0.04, 0.08, -0.02],
-  abductors: [0.055, 0.08, 0.02],
-  calves: [0.015, 0.12, -0.02],
-  "cardiovascular system": [0, 0.12, 0],
-};
+const atlasTargetGroups = Object.fromEntries(
+  Object.entries(subgroupAtlas).map(([subgroup, config]) => [subgroup, config.group]),
+);
 
 const coreSubgroups = new Set(["abs", "obliques", "hip flexors", "lower back"]);
 
@@ -149,7 +154,6 @@ const bodyZones = [
   ["front", "abductors", "upper legs", "M126 361 C148 365 165 378 174 399 C166 449 157 499 148 552 C123 516 107 470 103 414 C108 390 116 372 126 361 Z M274 361 C252 365 235 378 226 399 C234 449 243 499 252 552 C277 516 293 470 297 414 C292 390 284 372 274 361 Z"],
   ["front", "quads", "upper legs", "M130 392 C158 399 176 421 181 457 C176 506 168 553 156 592 C130 575 113 539 108 489 C111 448 119 415 130 392 Z M270 392 C242 399 224 421 219 457 C224 506 232 553 244 592 C270 575 287 539 292 489 C289 448 281 415 270 392 Z"],
   ["front", "calves", "lower legs", "M128 557 C146 568 157 592 158 629 C154 677 148 713 139 737 C121 716 110 682 108 640 C110 603 117 575 128 557 Z M272 557 C254 568 243 592 242 629 C246 677 252 713 261 737 C279 716 290 682 292 640 C290 603 283 575 272 557 Z"],
-  ["front", "cardiovascular system", "cardio", "M215 217 C230 226 231 249 215 260 C199 249 200 226 215 217 Z"],
   ["back", "levator scapulae", "neck", "M577 82 C569 111 568 139 576 164 L596 165 C593 136 592 108 591 87 Z M623 87 C622 108 621 136 617 165 L638 164 C646 139 645 111 637 82 Z"],
   ["back", "traps", "back", "M546 143 C571 148 589 169 600 207 C611 169 629 148 654 143 C646 205 633 263 617 315 C607 322 593 322 583 315 C567 263 554 205 546 143 Z"],
   ["back", "upper back", "back", "M528 199 C558 208 581 231 596 266 C589 291 581 313 571 331 C544 311 526 280 516 236 Z M672 199 C642 208 619 231 604 266 C611 291 619 313 629 331 C656 311 674 280 684 236 Z"],
@@ -219,6 +223,7 @@ function renderMuscleMap() {
   els.map.innerHTML = `
     <svg class="muscle-diagram" viewBox="0 0 800 820" role="img" aria-labelledby="muscle-map-title">
       <title id="muscle-map-title">${copy[state.lang].atlasAria}</title>
+      ${renderSpecialControl()}
       <g class="body-view" aria-label="${copy[state.lang].front}">
         ${renderBodyBase(0)}
         ${renderZones("front")}
@@ -232,6 +237,18 @@ function renderMuscleMap() {
         <text class="view-label" x="600" y="790">${copy[state.lang].backView}</text>
       </g>
     </svg>
+  `;
+}
+
+function renderSpecialControl() {
+  const subgroup = "cardiovascular system";
+  const color = getSubgroupColor(subgroup);
+  return `
+    <g class="special-zone" data-group="cardio" data-subgroup="${subgroup}" tabindex="0" role="button" aria-label="${formatLabel(subgroup)}" style="--zone-color: ${color};">
+      <circle cx="400" cy="47" r="24" />
+      <path d="M400 61 C386 52 381 43 384 35 C387 28 396 29 400 36 C404 29 413 28 416 35 C419 43 414 52 400 61 Z" />
+      <text x="400" y="88">${formatLabel(subgroup)}</text>
+    </g>
   `;
 }
 
@@ -272,7 +289,8 @@ function renderZones(view) {
     .filter((zone) => zone.view === view)
     .map((zone) => {
       const color = getSubgroupColor(zone.subgroup);
-      return `<path class="muscle-zone" data-group="${zone.group}" data-subgroup="${zone.subgroup}" d="${zone.path}" style="--zone-color: ${color}; fill: ${color};" tabindex="0" role="button" aria-label="${formatLabel(zone.subgroup)}" />`;
+      const group = subgroupAtlas[zone.subgroup]?.group || zone.group;
+      return `<path class="muscle-zone" data-group="${group}" data-subgroup="${zone.subgroup}" d="${zone.path}" style="--zone-color: ${color}; fill: ${color};" tabindex="0" role="button" aria-label="${formatLabel(zone.subgroup)}" />`;
     })
     .join("");
 }
@@ -285,12 +303,12 @@ function bindEvents() {
   els.map.addEventListener("pointermove", handlePointerMove);
   els.map.addEventListener("pointerleave", clearHover);
   els.map.addEventListener("click", (event) => {
-    const zone = event.target.closest(".muscle-zone");
+    const zone = event.target.closest(".muscle-zone, .special-zone");
     if (zone) selectSubgroup(zone.dataset.subgroup, zone.dataset.group);
   });
   els.map.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
-    const zone = event.target.closest(".muscle-zone");
+    const zone = event.target.closest(".muscle-zone, .special-zone");
     if (!zone) return;
     event.preventDefault();
     selectSubgroup(zone.dataset.subgroup, zone.dataset.group);
@@ -298,7 +316,7 @@ function bindEvents() {
 }
 
 function handlePointerMove(event) {
-  const zone = event.target.closest(".muscle-zone");
+  const zone = event.target.closest(".muscle-zone, .special-zone");
   if (!zone) {
     clearHover();
     return;
@@ -398,7 +416,7 @@ function renderAtlas() {
 }
 
 function updateZoneState() {
-  els.map.querySelectorAll(".muscle-zone").forEach((zone) => {
+  els.map.querySelectorAll(".muscle-zone, .special-zone").forEach((zone) => {
     const isGroup = state.group !== "all" && zone.dataset.group === state.group;
     const isSubgroup = state.subgroup !== "all" && zone.dataset.subgroup === state.subgroup;
     const isActive = isSubgroup || (state.subgroup === "all" && isGroup);
@@ -448,59 +466,7 @@ function getCatalogUrl() {
 }
 
 function getSubgroupColor(subgroup) {
-  const group = atlasTargetGroups[subgroup] || "waist";
-  const [hueOffset, saturationOffset, lightnessOffset] = subgroupToneOffsets[subgroup] || [0, 0, 0];
-  const [hue, saturation, lightness] = hexToHsl(atlasGroupColors[group] || "#9b8f85");
-  return hslToHex(
-    (hue + hueOffset + 1) % 1,
-    clamp(saturation + saturationOffset, 0.25, 0.95),
-    clamp(lightness + lightnessOffset, 0.28, 0.72),
-  );
-}
-
-function hexToHsl(hex) {
-  const normalized = hex.replace("#", "");
-  const red = parseInt(normalized.slice(0, 2), 16) / 255;
-  const green = parseInt(normalized.slice(2, 4), 16) / 255;
-  const blue = parseInt(normalized.slice(4, 6), 16) / 255;
-  const max = Math.max(red, green, blue);
-  const min = Math.min(red, green, blue);
-  const lightness = (max + min) / 2;
-
-  if (max === min) return [0, 0, lightness];
-
-  const delta = max - min;
-  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-  let hue = 0;
-  if (max === red) hue = (green - blue) / delta + (green < blue ? 6 : 0);
-  if (max === green) hue = (blue - red) / delta + 2;
-  if (max === blue) hue = (red - green) / delta + 4;
-  return [hue / 6, saturation, lightness];
-}
-
-function hslToHex(hue, saturation, lightness) {
-  const toRgb = (p, q, t) => {
-    let value = t;
-    if (value < 0) value += 1;
-    if (value > 1) value -= 1;
-    if (value < 1 / 6) return p + (q - p) * 6 * value;
-    if (value < 1 / 2) return q;
-    if (value < 2 / 3) return p + (q - p) * (2 / 3 - value) * 6;
-    return p;
-  };
-
-  const q = lightness < 0.5 ? lightness * (1 + saturation) : lightness + saturation - lightness * saturation;
-  const p = 2 * lightness - q;
-  const channels = [
-    toRgb(p, q, hue + 1 / 3),
-    toRgb(p, q, hue),
-    toRgb(p, q, hue - 1 / 3),
-  ];
-  return `#${channels.map((channel) => Math.round(channel * 255).toString(16).padStart(2, "0")).join("")}`;
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
+  return subgroupAtlas[subgroup]?.color || atlasGroupColors[atlasTargetGroups[subgroup]] || "#9b8f85";
 }
 
 init().catch((error) => {

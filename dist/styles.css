@@ -412,12 +412,10 @@ button:focus-visible {
   stroke-width: 1.8;
 }
 
-.muscle-zone {
+.muscle-zone,
+.special-zone {
   cursor: pointer;
   outline: none;
-  stroke: rgba(255, 255, 255, 0.92);
-  stroke-linejoin: round;
-  stroke-width: 2.8;
   transition:
     filter 160ms ease,
     opacity 160ms ease,
@@ -427,16 +425,47 @@ button:focus-visible {
   transform-origin: center;
 }
 
+.muscle-zone {
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-linejoin: round;
+  stroke-width: 2.8;
+}
+
 .muscle-zone:hover,
 .muscle-zone:focus-visible,
-.muscle-zone.is-active {
+.muscle-zone.is-active,
+.special-zone:hover,
+.special-zone:focus-visible,
+.special-zone.is-active {
   filter: drop-shadow(0 8px 14px color-mix(in srgb, var(--zone-color) 42%, transparent));
   stroke: #fff;
   stroke-width: 6;
   transform: scale(1.025);
 }
 
-.muscle-zone.is-muted {
+.special-zone circle {
+  fill: color-mix(in srgb, var(--zone-color) 14%, #fff);
+  stroke: var(--zone-color);
+  stroke-width: 2;
+}
+
+.special-zone path {
+  fill: var(--zone-color);
+  stroke: rgba(255, 255, 255, 0.72);
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+}
+
+.special-zone text {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-anchor: middle;
+}
+
+.muscle-zone.is-muted,
+.special-zone.is-muted {
   opacity: 0.18;
 }
 
