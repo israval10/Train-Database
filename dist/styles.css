@@ -400,7 +400,7 @@ button:focus-visible {
   stroke: #cf6e5a;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2.4;
+  stroke-width: 2.2;
 }
 
 .body-detail {
@@ -409,7 +409,7 @@ button:focus-visible {
   stroke: #cf6e5a;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2;
+  stroke-width: 1.8;
 }
 
 .muscle-zone {
@@ -417,7 +417,7 @@ button:focus-visible {
   outline: none;
   stroke: rgba(255, 255, 255, 0.92);
   stroke-linejoin: round;
-  stroke-width: 3.4;
+  stroke-width: 2.8;
   transition:
     filter 160ms ease,
     opacity 160ms ease,
