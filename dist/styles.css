@@ -374,27 +374,69 @@ button:focus-visible {
   overflow: hidden;
   border-radius: 8px;
   background:
-    radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 50% 72%, rgba(35, 122, 87, 0.18), transparent 38%),
-    linear-gradient(160deg, #171717, #312d29 56%, #161412);
-  perspective: 900px;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 250, 247, 0.96)),
+    #fffdfa;
 }
 
-.muscle-viewer {
-  cursor: grab;
-  touch-action: none;
+.muscle-map-stage {
+  border: 1px solid var(--line);
 }
 
-.muscle-viewer:active {
-  cursor: grabbing;
+.muscle-map {
+  width: 100%;
+  max-width: 820px;
+  padding: clamp(10px, 2.5vw, 22px);
 }
 
-#muscle-canvas {
+.muscle-diagram {
   display: block;
   width: 100%;
-  height: 100%;
-  min-height: inherit;
+  height: auto;
+  max-height: 760px;
+}
+
+.body-base {
+  fill: #fee3d4;
+  stroke: #cf6e5a;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.muscle-zone {
+  cursor: pointer;
   outline: none;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-linejoin: round;
+  stroke-width: 4;
+  transition:
+    filter 160ms ease,
+    opacity 160ms ease,
+    stroke-width 160ms ease,
+    transform 160ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.muscle-zone:hover,
+.muscle-zone:focus-visible,
+.muscle-zone.is-active {
+  filter: drop-shadow(0 8px 14px color-mix(in srgb, var(--zone-color) 42%, transparent));
+  stroke: #fff;
+  stroke-width: 6;
+  transform: scale(1.025);
+}
+
+.muscle-zone.is-muted {
+  opacity: 0.18;
+}
+
+.view-label {
+  fill: var(--muted);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-anchor: middle;
 }
 
 .muscle-tooltip {
@@ -413,223 +455,6 @@ button:focus-visible {
   transform: translate(12px, -120%);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(10px);
-}
-
-.model-credit {
-  position: absolute;
-  right: 10px;
-  bottom: 8px;
-  z-index: 2;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0;
-  pointer-events: none;
-}
-
-.body-model {
-  --selected-muscle: var(--accent);
-  position: relative;
-  width: min(260px, 66vw);
-  height: 470px;
-  transform: rotateX(8deg) rotateY(-18deg);
-  transform-style: preserve-3d;
-  animation: body-turn 12s ease-in-out infinite alternate;
-}
-
-.body-shadow {
-  position: absolute;
-  left: 50%;
-  bottom: 1%;
-  width: 60%;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(23, 23, 23, 0.17);
-  filter: blur(8px);
-  transform: translateX(-50%) translateZ(-70px);
-}
-
-.body-part,
-.body-heart {
-  position: absolute;
-  left: 50%;
-  border: 1px solid rgba(23, 23, 23, 0.14);
-  background:
-    radial-gradient(circle at 36% 22%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 34%),
-    linear-gradient(145deg, #d9d1c6, #9d958c);
-  box-shadow:
-    inset -16px -20px 34px rgba(23, 23, 23, 0.15),
-    inset 12px 16px 28px rgba(255, 255, 255, 0.45),
-    0 18px 28px rgba(23, 23, 23, 0.12);
-  transform-style: preserve-3d;
-  transition:
-    background 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.head {
-  top: 3%;
-  width: 58px;
-  height: 72px;
-  border-radius: 48% 48% 44% 44%;
-  transform: translateX(-50%) translateZ(26px);
-}
-
-.neck {
-  top: 17%;
-  width: 34px;
-  height: 44px;
-  border-radius: 16px;
-  transform: translateX(-50%) translateZ(14px);
-}
-
-.torso {
-  top: 23%;
-  width: 126px;
-  height: 164px;
-  border-radius: 46% 46% 34% 34%;
-  transform: translateX(-50%) translateZ(18px);
-}
-
-.waist {
-  top: 49%;
-  width: 90px;
-  height: 86px;
-  border-radius: 38% 38% 46% 46%;
-  transform: translateX(-50%) translateZ(20px);
-}
-
-.upper-arm,
-.lower-arm,
-.upper-leg,
-.lower-leg {
-  border-radius: 999px;
-}
-
-.upper-arm {
-  top: 26%;
-  width: 38px;
-  height: 138px;
-}
-
-.upper-arm.left {
-  transform: translateX(-152px) rotateZ(13deg) rotateY(-12deg);
-}
-
-.upper-arm.right {
-  transform: translateX(114px) rotateZ(-13deg) rotateY(12deg);
-}
-
-.lower-arm {
-  top: 48%;
-  width: 31px;
-  height: 132px;
-}
-
-.lower-arm.left {
-  transform: translateX(-171px) rotateZ(7deg) rotateY(-16deg);
-}
-
-.lower-arm.right {
-  transform: translateX(139px) rotateZ(-7deg) rotateY(16deg);
-}
-
-.upper-leg {
-  top: 63%;
-  width: 47px;
-  height: 132px;
-}
-
-.upper-leg.left {
-  transform: translateX(-52px) rotateZ(4deg) rotateY(-8deg);
-}
-
-.upper-leg.right {
-  transform: translateX(7px) rotateZ(-4deg) rotateY(8deg);
-}
-
-.lower-leg {
-  top: 83%;
-  width: 36px;
-  height: 112px;
-}
-
-.lower-leg.left {
-  transform: translateX(-48px) rotateZ(2deg) rotateY(-8deg);
-}
-
-.lower-leg.right {
-  transform: translateX(12px) rotateZ(-2deg) rotateY(8deg);
-}
-
-.body-heart {
-  top: 31%;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #d65a52;
-  transform: translateX(-23%) translateZ(44px);
-}
-
-.body-model[data-active-group="neck"] .neck,
-.body-model[data-active-group="chest"] .torso,
-.body-model[data-active-group="back"] .torso,
-.body-model[data-active-group="waist"] .waist,
-.body-model[data-active-group="cardio"] .body-heart,
-.body-model[data-active-group="shoulders"] .upper-arm,
-.body-model[data-active-group="upper arms"] .upper-arm,
-.body-model[data-active-group="lower arms"] .lower-arm,
-.body-model[data-active-group="upper legs"] .upper-leg,
-.body-model[data-active-group="lower legs"] .lower-leg {
-  background:
-    radial-gradient(circle at 34% 18%, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0) 32%),
-    var(--selected-muscle);
-  box-shadow:
-    0 0 0 5px rgba(255, 255, 255, 0.62),
-    0 0 34px color-mix(in srgb, var(--selected-muscle) 50%, transparent),
-    inset -16px -20px 34px rgba(23, 23, 23, 0.18),
-    inset 12px 16px 28px rgba(255, 255, 255, 0.34);
-}
-
-.body-zones {
-  position: absolute;
-  inset: 0;
-}
-
-.body-zone {
-  position: absolute;
-  z-index: 2;
-  display: grid;
-  min-width: 68px;
-  min-height: 34px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--zone-color) 68%, #ffffff);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--zone-color) 14%, rgba(255, 255, 255, 0.9));
-  color: #171717;
-  font-size: 0.74rem;
-  font-weight: 900;
-  line-height: 1;
-  opacity: 0.88;
-  padding: 6px;
-  text-align: center;
-  transform: translate(-50%, -50%);
-}
-
-.body-zone::after {
-  position: absolute;
-  inset: -5px;
-  border: 1px solid color-mix(in srgb, var(--zone-color) 42%, transparent);
-  border-radius: inherit;
-  content: "";
-}
-
-.body-zone.is-active {
-  background: var(--zone-color);
-  color: #fff;
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .atlas-panel {
@@ -996,24 +821,10 @@ li,
   }
 }
 
-@keyframes body-turn {
-  from {
-    transform: rotateX(8deg) rotateY(-18deg);
-  }
-
-  to {
-    transform: rotateX(8deg) rotateY(18deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
-  }
-
-  .body-model {
-    animation: none;
   }
 }

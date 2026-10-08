@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Mapa 3D interactivo de grupos y subgrupos musculares del atlas de ejercicios."
+      content="Mapa 2D interactivo de grupos y subgrupos musculares del atlas de ejercicios."
     />
-    <title>Mapa Muscular 3D</title>
-    <link rel="stylesheet" href="styles.css?v=20261007-layout-2" />
+    <title>Mapa Muscular 2D</title>
+    <link rel="stylesheet" href="styles.css?v=20261008-2d-map" />
   </head>
   <body class="home-page">
     <header class="app-header">
       <div>
         <p id="home-eyebrow" class="eyebrow">Home muscular</p>
-        <h1 id="home-title">Mapa Muscular 3D</h1>
+        <h1 id="home-title">Mapa Muscular 2D</h1>
       </div>
       <nav class="top-nav" aria-label="Navegacion principal">
         <a id="catalog-link" href="catalog.html">Catalogo</a>
@@ -28,14 +28,11 @@
     </header>
 
     <main class="home-main">
-      <section class="muscle-atlas home-atlas" aria-label="Mapa muscular 3D">
+      <section class="muscle-atlas home-atlas" aria-label="Mapa muscular 2D">
         <div class="atlas-layout">
-          <div class="body-stage muscle-viewer" aria-label="Cuerpo humano interactivo">
-            <canvas id="muscle-canvas" aria-label="Visor 3D interactivo"></canvas>
+          <div class="body-stage muscle-map-stage" aria-label="Mapa muscular interactivo">
+            <div id="muscle-map" class="muscle-map" aria-label="Mapa 2D frontal y posterior"></div>
             <div id="muscle-tooltip" class="muscle-tooltip" hidden></div>
-            <div class="model-credit" aria-label="Credito del modelo 3D">
-              Modelo: BodyParts3D / Z-Anatomy
-            </div>
           </div>
 
           <div class="atlas-panel">
@@ -57,6 +54,6 @@
       </section>
     </main>
 
-    <script src="home.js?v=20261007-subgroups-layout-2" type="module"></script>
+    <script src="home.js?v=20261008-2d-map" type="module"></script>
   </body>
 </html>

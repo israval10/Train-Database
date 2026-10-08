@@ -1,27 +1,22 @@
-import * as THREE from "./vendor/three.module.js";
-import { GLTFLoader } from "./vendor/GLTFLoader.js";
-import { OrbitControls } from "./vendor/OrbitControls.js";
-
 const DATA_URL = "data/exercises.json";
 const LANG_STORAGE_KEY = "exerciseCatalogLanguage";
 
 const copy = {
   es: {
-    documentTitle: "Mapa Muscular 3D",
+    documentTitle: "Mapa Muscular 2D",
     eyebrow: "Home muscular",
-    title: "Mapa Muscular 3D",
+    title: "Mapa Muscular 2D",
     catalog: "Catalogo",
     language: "Idioma",
-    kicker: "Mapa muscular 3D",
-    atlasTitle: "Explora el cuerpo por subgrupos",
-    atlasDescription: "Gira, acerca y toca el cuerpo para identificar subgrupos musculares.",
-    atlasAria: "Cuerpo humano interactivo",
+    atlasAria: "Mapa muscular interactivo frontal y posterior",
     groups: "Grupos",
     subgroups: "Subgrupos",
     selectionLabel: "Seleccion actual",
     allGroups: "Todos los grupos",
     openCatalog: "Ver catalogo",
     exercisesShort: "ej.",
+    front: "Frente",
+    backView: "Reverso",
     labels: {
       back: "Espalda",
       cardio: "Cardio",
@@ -36,21 +31,20 @@ const copy = {
     },
   },
   en: {
-    documentTitle: "3D Muscle Map",
+    documentTitle: "2D Muscle Map",
     eyebrow: "Muscle home",
-    title: "3D Muscle Map",
+    title: "2D Muscle Map",
     catalog: "Catalog",
     language: "Language",
-    kicker: "3D muscle map",
-    atlasTitle: "Explore the body by subgroups",
-    atlasDescription: "Rotate, zoom and touch the body to identify muscle subgroups.",
-    atlasAria: "Interactive human body",
+    atlasAria: "Interactive front and back muscle map",
     groups: "Groups",
     subgroups: "Subgroups",
     selectionLabel: "Current selection",
     allGroups: "All groups",
     openCatalog: "Open catalog",
     exercisesShort: "ex.",
+    front: "Front",
+    backView: "Back",
     labels: {
       back: "Back",
       cardio: "Cardio",
@@ -84,12 +78,12 @@ const atlasGroupColors = {
   cardio: "#c03942",
   chest: "#d36c62",
   "lower arms": "#b86f9e",
-  "lower legs": "#83b783",
+  "lower legs": "#48add7",
   neck: "#6fb0b0",
   shoulders: "#d9bb55",
   "upper arms": "#b978c2",
-  "upper legs": "#d18c5b",
-  waist: "#82a8d6",
+  "upper legs": "#3f8dca",
+  waist: "#1fb3a7",
 };
 
 const atlasTargetGroups = {
@@ -141,6 +135,35 @@ const subgroupToneOffsets = {
 
 const coreSubgroups = new Set(["abs", "obliques", "hip flexors", "lower back"]);
 
+const bodyZones = [
+  ["front", "levator scapulae", "neck", "M171 85 C164 104 159 119 155 139 L174 151 C181 133 185 112 184 90 Z M216 90 C215 112 219 133 226 151 L245 139 C241 119 236 104 229 85 Z"],
+  ["front", "delts", "shoulders", "M116 151 C88 154 70 168 62 194 C82 201 100 206 122 202 C132 184 136 166 116 151 Z M284 151 C312 154 330 168 338 194 C318 201 300 206 278 202 C268 184 264 166 284 151 Z"],
+  ["front", "pectorals", "chest", "M131 151 C154 144 178 145 194 156 L193 215 C168 219 141 213 125 194 C122 176 123 161 131 151 Z M206 156 C222 145 246 144 269 151 C277 161 278 176 275 194 C259 213 232 219 207 215 Z"],
+  ["front", "serratus anterior", "chest", "M114 206 C122 217 128 231 130 250 L149 251 C144 230 139 215 130 200 Z M286 206 C278 217 272 231 270 250 L251 251 C256 230 261 215 270 200 Z"],
+  ["front", "biceps", "upper arms", "M83 205 C98 210 111 218 119 230 C113 260 106 288 96 314 C78 309 67 298 61 281 C65 254 72 227 83 205 Z M317 205 C302 210 289 218 281 230 C287 260 294 288 304 314 C322 309 333 298 339 281 C335 254 328 227 317 205 Z"],
+  ["front", "forearms", "lower arms", "M58 292 C72 311 85 326 97 344 C90 374 82 403 71 433 C55 424 44 407 37 384 C42 350 49 318 58 292 Z M342 292 C328 311 315 326 303 344 C310 374 318 403 329 433 C345 424 356 407 363 384 C358 350 351 318 342 292 Z"],
+  ["front", "abs", "waist", "M166 225 C187 221 213 221 234 225 C237 257 236 293 229 326 C213 332 187 332 171 326 C164 293 163 257 166 225 Z"],
+  ["front", "obliques", "waist", "M130 226 C141 224 152 224 163 226 C160 260 161 294 169 330 C154 326 141 314 131 295 C125 271 125 247 130 226 Z M270 226 C259 224 248 224 237 226 C240 260 239 294 231 330 C246 326 259 314 269 295 C275 271 275 247 270 226 Z"],
+  ["front", "hip flexors", "waist", "M168 332 C184 337 194 345 199 358 C188 381 178 405 169 432 C150 410 144 380 151 345 Z M232 332 C216 337 206 345 201 358 C212 381 222 405 231 432 C250 410 256 380 249 345 Z"],
+  ["front", "adductors", "upper legs", "M181 365 C192 372 198 386 199 408 C194 455 189 506 184 558 C169 513 158 464 151 411 C157 388 166 372 181 365 Z M219 365 C208 372 202 386 201 408 C206 455 211 506 216 558 C231 513 242 464 249 411 C243 388 234 372 219 365 Z"],
+  ["front", "abductors", "upper legs", "M128 362 C148 365 164 376 173 394 C164 438 156 485 149 537 C125 502 110 460 104 410 C108 389 116 373 128 362 Z M272 362 C252 365 236 376 227 394 C236 438 244 485 251 537 C275 502 290 460 296 410 C292 389 284 373 272 362 Z"],
+  ["front", "quads", "upper legs", "M132 390 C158 396 174 416 180 449 C174 497 166 542 155 583 C131 565 117 532 111 486 C113 448 120 416 132 390 Z M268 390 C242 396 226 416 220 449 C226 497 234 542 245 583 C269 565 283 532 289 486 C287 448 280 416 268 390 Z"],
+  ["front", "calves", "lower legs", "M129 555 C146 565 157 586 159 620 C154 666 148 704 140 735 C121 713 110 680 108 636 C111 600 118 573 129 555 Z M271 555 C254 565 243 586 241 620 C246 666 252 704 260 735 C279 713 290 680 292 636 C289 600 282 573 271 555 Z"],
+  ["front", "cardiovascular system", "cardio", "M215 217 C230 226 231 249 215 260 C199 249 200 226 215 217 Z"],
+  ["back", "levator scapulae", "neck", "M578 83 C570 113 568 140 576 162 L596 164 C592 136 591 108 591 87 Z M622 87 C622 108 621 136 617 164 L638 162 C646 140 644 113 636 83 Z"],
+  ["back", "traps", "back", "M548 145 C571 151 588 170 600 204 C612 170 629 151 652 145 C643 203 632 258 617 310 C606 316 594 316 583 310 C568 258 557 203 548 145 Z"],
+  ["back", "upper back", "back", "M529 206 C556 211 579 231 595 263 C588 285 581 305 572 325 C546 306 528 276 518 235 Z M671 206 C644 211 621 231 605 263 C612 285 619 305 628 325 C654 306 672 276 682 235 Z"],
+  ["back", "lats", "back", "M515 241 C539 263 559 298 574 343 C558 353 540 354 520 345 C508 311 503 276 515 241 Z M685 241 C661 263 641 298 626 343 C642 353 660 354 680 345 C692 311 697 276 685 241 Z"],
+  ["back", "delts", "shoulders", "M516 150 C488 154 470 169 463 194 C483 202 501 206 522 202 C532 181 534 163 516 150 Z M684 150 C712 154 730 169 737 194 C717 202 699 206 678 202 C668 181 666 163 684 150 Z"],
+  ["back", "triceps", "upper arms", "M482 203 C500 210 514 223 522 242 C517 270 510 295 499 320 C481 316 469 301 462 279 C466 248 472 224 482 203 Z M718 203 C700 210 686 223 678 242 C683 270 690 295 701 320 C719 316 731 301 738 279 C734 248 728 224 718 203 Z"],
+  ["back", "forearms", "lower arms", "M459 289 C474 310 487 329 500 350 C493 379 485 407 473 433 C456 423 445 404 439 382 C444 348 450 318 459 289 Z M741 289 C726 310 713 329 700 350 C707 379 715 407 727 433 C744 423 755 404 761 382 C756 348 750 318 741 289 Z"],
+  ["back", "lower back", "waist", "M574 324 C592 331 608 331 626 324 C633 352 630 381 617 410 C606 414 594 414 583 410 C570 381 567 352 574 324 Z"],
+  ["back", "spine", "waist", "M596 159 C604 159 607 159 604 159 L608 414 L592 414 Z"],
+  ["back", "glutes", "upper legs", "M544 360 C572 350 592 361 600 394 C590 424 570 441 540 445 C522 421 520 386 544 360 Z M656 360 C628 350 608 361 600 394 C610 424 630 441 660 445 C678 421 680 386 656 360 Z"],
+  ["back", "hamstrings", "upper legs", "M532 430 C560 436 579 460 586 502 C580 544 570 581 556 613 C530 594 515 558 510 510 C512 475 519 448 532 430 Z M668 430 C640 436 621 460 614 502 C620 544 630 581 644 613 C670 594 685 558 690 510 C688 475 681 448 668 430 Z"],
+  ["back", "calves", "lower legs", "M532 578 C553 589 566 616 568 655 C563 696 556 725 546 742 C525 715 514 679 513 636 C516 610 522 591 532 578 Z M668 578 C647 589 634 616 632 655 C637 696 644 725 654 742 C675 715 686 679 687 636 C684 610 678 591 668 578 Z"],
+].map(([view, subgroup, group, path]) => ({ view, subgroup, group, path }));
+
 const state = {
   exercises: [],
   lang: localStorage.getItem(LANG_STORAGE_KEY) === "en" ? "en" : "es",
@@ -157,7 +180,7 @@ const els = {
   languageToggle: document.querySelector(".language-toggle"),
   languageButtons: document.querySelectorAll(".language-toggle button"),
   bodyStage: document.querySelector(".body-stage"),
-  canvas: document.querySelector("#muscle-canvas"),
+  map: document.querySelector("#muscle-map"),
   tooltip: document.querySelector("#muscle-tooltip"),
   groupsLabel: document.querySelector("#atlas-groups-label"),
   subgroupsLabel: document.querySelector("#atlas-subgroups-label"),
@@ -167,23 +190,6 @@ const els = {
   groups: document.querySelector("#atlas-groups"),
   subgroups: document.querySelector("#atlas-subgroups"),
 };
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  alpha: true,
-  canvas: els.canvas,
-});
-const controls = new OrbitControls(camera, renderer.domElement);
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-const interactiveMeshes = [];
-const materials = new Map();
-let selectedMesh = null;
-let hoveredMesh = null;
-let rafId = 0;
-let realModelLoaded = false;
 
 const formatLabel = (value) =>
   copy[state.lang].labels[value] || value.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -204,691 +210,51 @@ async function init() {
   state.counts.subgroups = countBy(state.exercises, (exercise) => getFilterSubgroups(exercise));
 
   translate();
-  setupScene();
+  renderMuscleMap();
   renderAtlas();
   bindEvents();
-  resizeViewer();
-  animate();
 }
 
-function setupScene() {
-  camera.position.set(0, 0.28, 10.4);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.enablePan = false;
-  controls.minDistance = 3.5;
-  controls.maxDistance = 11;
-  controls.target.set(0, 0.05, 0);
-  controls.touches = {
-    ONE: THREE.TOUCH.ROTATE,
-    TWO: THREE.TOUCH.DOLLY_ROTATE,
-  };
-
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x5d544d, 1.75));
-
-  const keyLight = new THREE.DirectionalLight(0xffffff, 3.15);
-  keyLight.position.set(4, 5, 5);
-  scene.add(keyLight);
-
-  const rimLight = new THREE.DirectionalLight(0xd8e8ff, 1.65);
-  rimLight.position.set(-3, 3, -5);
-  scene.add(rimLight);
-
-  const body = new THREE.Group();
-  body.rotation.y = -0.28;
-  scene.add(body);
-
-  loadRealAnatomyModel(body);
-  addSkeleton(body);
-  addDeepMuscleLayer(body);
-  addFasciaSeparators(body);
-  addTendons(body);
-  addMuscles(body);
+function renderMuscleMap() {
+  els.map.innerHTML = `
+    <svg class="muscle-diagram" viewBox="0 0 800 820" role="img" aria-labelledby="muscle-map-title">
+      <title id="muscle-map-title">${copy[state.lang].atlasAria}</title>
+      <g class="body-view" aria-label="${copy[state.lang].front}">
+        ${renderBodyBase(0)}
+        ${renderZones("front")}
+        <text class="view-label" x="200" y="790">${copy[state.lang].front}</text>
+      </g>
+      <g class="body-view" aria-label="${copy[state.lang].backView}">
+        ${renderBodyBase(400)}
+        ${renderZones("back")}
+        <text class="view-label" x="600" y="790">${copy[state.lang].backView}</text>
+      </g>
+    </svg>
+  `;
 }
 
-function loadRealAnatomyModel(body) {
-  const loader = new GLTFLoader();
-  loader.load(
-    "models/anatomy.glb",
-    (gltf) => {
-      const source = gltf.scene;
-      const sourceBox = new THREE.Box3().setFromObject(source);
-      const sourceCenter = sourceBox.getCenter(new THREE.Vector3());
-      const sourceSize = sourceBox.getSize(new THREE.Vector3());
-      const scaleFactor = 4.75 / Math.max(sourceSize.z, 0.001);
-      const model = new THREE.Group();
-      model.name = "real-anatomy-model";
-      source.traverse((child) => {
-        if (!child.isMesh) return;
-        const geometry = child.geometry.clone();
-        transformAnatomyGeometry(geometry, sourceCenter, scaleFactor);
-        const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
-          color: pickAnatomyColor(child.name),
-          roughness: 0.82,
-          metalness: 0.04,
-          side: THREE.DoubleSide,
-        }));
-        mesh.userData.passive = true;
-        model.add(mesh);
-      });
-
-      body.add(model);
-      body.children.forEach((child) => {
-        if (child === model) return;
-        child.traverse((object) => {
-          if (!interactiveMeshes.includes(object)) object.visible = false;
-        });
-      });
-      realModelLoaded = true;
-      updateMeshState();
-    },
-    undefined,
-    () => {
-      realModelLoaded = false;
-      updateMeshState();
-    },
-  );
+function renderBodyBase(x) {
+  return `
+    <g class="body-base" transform="translate(${x} 0)">
+      <path d="M200 38 C229 38 247 59 244 89 C241 119 229 139 200 139 C171 139 159 119 156 89 C153 59 171 38 200 38 Z" />
+      <path d="M155 89 C139 91 136 124 153 135 M245 89 C261 91 264 124 247 135" />
+      <path d="M170 132 C181 148 219 148 230 132 L254 157 C273 178 278 221 268 296 C262 337 250 361 232 380 L168 380 C150 361 138 337 132 296 C122 221 127 178 146 157 Z" />
+      <path d="M122 175 C80 181 61 224 58 290 L37 384 C31 407 43 432 70 448 L97 347 C111 315 121 257 122 175 Z" />
+      <path d="M278 175 C320 181 339 224 342 290 L363 384 C369 407 357 432 330 448 L303 347 C289 315 279 257 278 175 Z" />
+      <path d="M168 380 C140 408 111 461 108 636 C108 696 120 748 143 748 C154 747 164 688 164 628 C172 549 188 479 200 413 C212 479 228 549 236 628 C236 688 246 747 257 748 C280 748 292 696 292 636 C289 461 260 408 232 380 Z" />
+      <path d="M120 748 C126 767 165 767 169 751 M231 751 C235 767 274 767 280 748" />
+    </g>
+  `;
 }
 
-function transformAnatomyGeometry(geometry, center, scaleFactor) {
-  const position = geometry.getAttribute("position");
-  if (!position) return;
-  const array = position.array;
-  for (let i = 0; i < array.length; i += 3) {
-    const sourceX = array[i];
-    const sourceY = array[i + 1];
-    const sourceZ = array[i + 2];
-    array[i] = (sourceX - center.x) * scaleFactor;
-    array[i + 1] = (sourceZ - center.z) * scaleFactor;
-    array[i + 2] = -(sourceY - center.y) * scaleFactor;
-  }
-  position.needsUpdate = true;
-  geometry.computeVertexNormals();
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
-}
-
-function pickAnatomyColor(name = "") {
-  if (isTendonLike(name)) return new THREE.Color("#dfd0b8");
-  const subgroup = classifyAnatomySubgroup(name);
-  return getSubgroupColor(subgroup);
-}
-
-function getSubgroupColor(subgroup) {
-  const group = atlasTargetGroups[subgroup] || "waist";
-  const color = new THREE.Color(atlasGroupColors[group] || "#a66a5f");
-  const [hue, saturation, lightness] = subgroupToneOffsets[subgroup] || [0, 0, 0];
-  color.offsetHSL(hue, saturation, lightness);
-  return color;
-}
-
-function isTendonLike(name = "") {
-  const value = name.toLowerCase();
-  return (
-    value.includes("tendon") ||
-    value.includes("ligament") ||
-    value.includes("retinaculum") ||
-    value.includes("membrane") ||
-    value.includes("fascia")
-  );
-}
-
-function classifyAnatomySubgroup(name = "") {
-  const value = name.toLowerCase();
-
-  if (value.includes("levator scapulae")) return "levator scapulae";
-  if (
-    value.includes("sternocleidomastoid") ||
-    value.includes("scalen") ||
-    value.includes("longus capitis") ||
-    value.includes("longus colli") ||
-    value.includes("digastric") ||
-    value.includes("mylohyoid") ||
-    value.includes("omohyoid") ||
-    value.includes("sternohyoid") ||
-    value.includes("thyrohyoid") ||
-    value.includes("platysma")
-  ) {
-    return "levator scapulae";
-  }
-
-  if (
-    value.includes("deltoid") ||
-    value.includes("supraspinatus") ||
-    value.includes("infraspinatus") ||
-    value.includes("teres major") ||
-    value.includes("teres minor") ||
-    value.includes("subscapularis")
-  ) {
-    return "delts";
-  }
-
-  if (value.includes("serratus anterior")) return "serratus anterior";
-  if (value.includes("pectoralis")) return "pectorals";
-
-  if (value.includes("trapezius")) return "traps";
-  if (value.includes("latissimus")) return "lats";
-  if (
-    value.includes("rhomboid") ||
-    value.includes("serratus posterior") ||
-    value.includes("splenius") ||
-    value.includes("semispinalis")
-  ) {
-    return "upper back";
-  }
-  if (
-    value.includes("iliocostalis") ||
-    value.includes("longissimus") ||
-    value.includes("spinalis")
-  ) {
-    return "lower back";
-  }
-
-  if (value.includes("biceps brachii") || value.includes("brachialis") || value.includes("coracobrachialis")) {
-    return "biceps";
-  }
-  if (value.includes("triceps brachii") || value.includes("anconeus")) return "triceps";
-  if (
-    value.includes("carpi") ||
-    value.includes("pronator") ||
-    value.includes("supinator") ||
-    value.includes("brachioradialis") ||
-    value.includes("pollicis") ||
-    value.includes("digitorum") ||
-    value.includes("digiti") ||
-    value.includes("palmaris") ||
-    value.includes("lumbrical") ||
-    value.includes("interosseous") ||
-    value.includes("opponens")
-  ) {
-    return "forearms";
-  }
-
-  if (value.includes("external oblique") || value.includes("internal oblique")) return "obliques";
-  if (value.includes("rectus abdominis") || value.includes("transversus abdominis")) return "abs";
-  if (value.includes("psoas") || value.includes("iliacus")) return "hip flexors";
-  if (value.includes("quadratus lumborum") || value.includes("diaphragm")) return "lower back";
-
-  if (value.includes("gastrocnemius") || value.includes("soleus") || value.includes("plantaris")) return "calves";
-  if (value.includes("tibialis") || value.includes("fibularis") || value.includes("popliteus")) return "calves";
-
-  if (value.includes("glute")) return "glutes";
-  if (value.includes("semitendinosus") || value.includes("semimembranosus") || value.includes("biceps femoris")) {
-    return "hamstrings";
-  }
-  if (value.includes("adductor") || value.includes("gracilis") || value.includes("pectineus")) return "adductors";
-  if (value.includes("abductor") || value.includes("tensor fasciae latae")) return "abductors";
-  if (
-    value.includes("rectus femoris") ||
-    value.includes("vastus") ||
-    value.includes("sartorius")
-  ) {
-    return "quads";
-  }
-  if (
-    value.includes("obturator") ||
-    value.includes("piriformis") ||
-    value.includes("gemellus") ||
-    value.includes("quadratus femoris")
-  ) {
-    return "glutes";
-  }
-
-  return "abs";
-}
-
-function classifyAnatomyGroup(name = "") {
-  return atlasTargetGroups[classifyAnatomySubgroup(name)] || "waist";
-}
-
-function addDeepMuscleLayer(body) {
-  const deep = makeMaterial("deep-muscle", "#7e756d", 0.88, 0.08);
-  deep.transparent = true;
-  deep.opacity = 0.72;
-
-  const specs = [
-    ["flat", [0, 0.88, 0.02], [0.6, 1.22, 0.22], [0, 0, 0]],
-    ["flat", [0, 0.35, -0.1], [0.52, 0.95, 0.18], [0, 0, 0]],
-    ["strap", [-0.8, 0.5, 0.01], [0.14, 1.42, 0.12], [0, 0, 0.16]],
-    ["strap", [0.8, 0.5, 0.01], [0.14, 1.42, 0.12], [0, 0, -0.16]],
-    ["strap", [-0.32, -1.22, 0.0], [0.2, 1.38, 0.15], [0.02, 0, -0.03]],
-    ["strap", [0.32, -1.22, 0.0], [0.2, 1.38, 0.15], [0.02, 0, 0.03]],
-    ["strap", [-0.25, -2.2, -0.02], [0.13, 0.96, 0.1], [0, 0, -0.01]],
-    ["strap", [0.25, -2.2, -0.02], [0.13, 0.96, 0.1], [0, 0, 0.01]],
-  ];
-
-  specs.forEach(([type, position, scale, rotation]) => {
-    const mesh = createMuscleMesh(type, deep, { grooves: 0 });
-    mesh.position.set(...position);
-    mesh.scale.set(...scale);
-    mesh.rotation.set(...rotation);
-    mesh.renderOrder = -1;
-    body.add(mesh);
-  });
-}
-
-function addFasciaSeparators(body) {
-  const fascia = new THREE.LineBasicMaterial({
-    color: 0xd7c7ad,
-    transparent: true,
-    opacity: 0.58,
-  });
-  const curves = [
-    [[0, 1.46, 0.36], [0, 0.08, 0.42]],
-    [[-0.46, 1.27, 0.32], [-0.08, 1.07, 0.4], [-0.04, 0.92, 0.42]],
-    [[0.46, 1.27, 0.32], [0.08, 1.07, 0.4], [0.04, 0.92, 0.42]],
-    [[-0.28, 0.82, 0.42], [0.28, 0.82, 0.42]],
-    [[-0.28, 0.54, 0.43], [0.28, 0.54, 0.43]],
-    [[-0.26, 0.26, 0.42], [0.26, 0.26, 0.42]],
-    [[-0.22, -0.02, 0.38], [0.22, -0.02, 0.38]],
-    [[-0.58, 0.98, 0.28], [-0.48, 0.62, 0.3], [-0.36, 0.24, 0.28]],
-    [[0.58, 0.98, 0.28], [0.48, 0.62, 0.3], [0.36, 0.24, 0.28]],
-  ];
-
-  curves.forEach((points) => {
-    body.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points.map((point) => new THREE.Vector3(...point))), fascia));
-  });
-}
-
-function addSkeleton(body) {
-  const bone = makeMaterial("bone", "#d8d0c1", 0.72, 0.18);
-  const spine = createCapsule("spine-core", "spine", "waist", [0, 0.72, -0.09], [0.11, 1.42, 0.11], bone);
-  spine.rotation.z = 0.03;
-  body.add(spine);
-
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 32, 24), bone);
-  head.position.set(0, 2.43, 0.02);
-  head.scale.set(0.68, 0.98, 0.66);
-  body.add(head);
-
-  const jaw = createMuscleMesh("flat", bone, { grooves: 0 });
-  jaw.position.set(0, 2.19, 0.2);
-  jaw.scale.set(0.28, 0.12, 0.08);
-  jaw.rotation.x = -0.12;
-  body.add(jaw);
-
-  const faceMuscle = makeMaterial("face-muscle", "#9b7568", 0.84, 0.06);
-  [
-    [-0.22, 2.25, 0.24, -0.72],
-    [0.22, 2.25, 0.24, 0.72],
-  ].forEach(([x, y, z, rot]) => {
-    const cheek = createMuscleMesh("strap", faceMuscle);
-    cheek.position.set(x, y, z);
-    cheek.scale.set(0.045, 0.32, 0.032);
-    cheek.rotation.set(1.04, 0, rot);
-    body.add(cheek);
-  });
-
-  const ribcage = createMuscleMesh("flat", bone, { grooves: 0 });
-  ribcage.position.set(0, 0.84, -0.18);
-  ribcage.scale.set(0.54, 0.96, 0.13);
-  ribcage.material.opacity = 0.34;
-  ribcage.material.transparent = true;
-  body.add(ribcage);
-
-  const ribLineMaterial = new THREE.LineBasicMaterial({ color: 0xcfc5b5, transparent: true, opacity: 0.42 });
-  for (let i = 0; i < 5; i += 1) {
-    const y = 1.22 - i * 0.15;
-    [-1, 1].forEach((side) => {
-      const points = [];
-      for (let step = 0; step <= 10; step += 1) {
-        const t = step / 10;
-        points.push(new THREE.Vector3(side * (0.14 + t * 0.34), y - t * 0.1, -0.02 + Math.sin(t * Math.PI) * 0.09));
-      }
-      body.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), ribLineMaterial));
-    });
-  }
-
-  const pelvis = createMuscleMesh("flat", bone, { grooves: 0 });
-  pelvis.position.set(0, -0.48, 0.03);
-  pelvis.scale.set(0.55, 0.36, 0.16);
-  body.add(pelvis);
-
-  [
-    [-0.47, 1.46, 0.23, 0.54],
-    [0.47, 1.46, 0.23, -0.54],
-  ].forEach(([x, y, z, rot]) => {
-    const clavicle = createCapsule("clavicle", "spine", "waist", [x, y, z], [0.032, 0.48, 0.032], bone);
-    clavicle.rotation.z = rot;
-    clavicle.rotation.y = x < 0 ? -0.25 : 0.25;
-    body.add(clavicle);
-  });
-
-  addHandsAndFeet(body, bone);
-}
-
-function addTendons(body) {
-  const tendon = makeMaterial("tendon", "#efe3ce", 0.72, 0.16);
-  const specs = [
-    [[0, 1.54, 0.27], [0.04, 0.62, 0.03], [0, 0, Math.PI / 2]],
-    [[0, 0.25, 0.34], [0.04, 1.05, 0.035], [0, 0, 0]],
-    [[-0.28, -0.07, 0.25], [0.035, 0.62, 0.03], [0.16, 0, -0.12]],
-    [[0.28, -0.07, 0.25], [0.035, 0.62, 0.03], [0.16, 0, 0.12]],
-    [[-1.26, -0.52, 0.05], [0.035, 0.48, 0.03], [0, 0, 0.1]],
-    [[1.26, -0.52, 0.05], [0.035, 0.48, 0.03], [0, 0, -0.1]],
-    [[-0.28, -1.72, 0.11], [0.035, 0.62, 0.03], [0.02, 0, -0.02]],
-    [[0.28, -1.72, 0.11], [0.035, 0.62, 0.03], [0.02, 0, 0.02]],
-  ];
-
-  specs.forEach(([position, scale, rotation]) => {
-    const mesh = createMuscleMesh("tendon", tendon, { grooves: 0 });
-    mesh.position.set(...position);
-    mesh.scale.set(...scale);
-    mesh.rotation.set(...rotation);
-    body.add(mesh);
-  });
-}
-
-function addHandsAndFeet(body, bone) {
-  [
-    [-1.3, -0.72, 0.06, 0.18],
-    [1.3, -0.72, 0.06, -0.18],
-  ].forEach(([x, y, z, rot]) => {
-    const palm = createMuscleMesh("flat", bone, { grooves: 1 });
-    palm.position.set(x, y, z);
-    palm.scale.set(0.15, 0.24, 0.06);
-    palm.rotation.z = rot;
-    body.add(palm);
-
-    for (let i = 0; i < 5; i += 1) {
-      const finger = createMuscleMesh("tendon", bone, { grooves: 0 });
-      finger.position.set(x + (i - 2) * 0.04 * Math.sign(x), y - 0.2, z + 0.02);
-      finger.scale.set(0.018, 0.22 - Math.abs(i - 2) * 0.02, 0.018);
-      finger.rotation.z = rot + (i - 2) * 0.04 * Math.sign(x);
-      body.add(finger);
-    }
-  });
-
-  [
-    [-0.31, -2.86, 0.16, -0.12],
-    [0.31, -2.86, 0.16, 0.12],
-  ].forEach(([x, y, z, rot]) => {
-    const foot = createMuscleMesh("flat", bone, { grooves: 1 });
-    foot.position.set(x, y, z);
-    foot.scale.set(0.2, 0.36, 0.09);
-    foot.rotation.x = Math.PI / 2.8;
-    foot.rotation.z = rot;
-    body.add(foot);
-  });
-}
-
-function addMuscles(body) {
-  const specs = [
-    ["levator scapulae", "neck", "strap", [-0.12, 1.95, 0.08], [0.055, 0.66, 0.04], [0.04, 0, -0.18]],
-    ["levator scapulae", "neck", "strap", [0.12, 1.95, 0.08], [0.055, 0.66, 0.04], [0.04, 0, 0.18]],
-    ["traps", "back", "flat", [0, 1.5, -0.28], [0.58, 0.42, 0.07], [-0.08, 0, 0]],
-    ["upper back", "back", "flat", [-0.3, 1.08, -0.35], [0.34, 0.42, 0.08], [-0.08, 0.1, -0.42]],
-    ["upper back", "back", "flat", [0.3, 1.08, -0.35], [0.34, 0.42, 0.08], [-0.08, -0.1, 0.42]],
-    ["lats", "back", "flat", [-0.42, 0.64, -0.24], [0.25, 0.66, 0.08], [0.1, 0, -0.28]],
-    ["lats", "back", "flat", [0.42, 0.64, -0.24], [0.25, 0.66, 0.08], [0.1, 0, 0.28]],
-    ["pectorals", "chest", "fan", [-0.3, 1.2, 0.31], [0.43, 0.22, 0.085], [0.04, -0.1, 0.1]],
-    ["pectorals", "chest", "fan", [0.3, 1.2, 0.31], [0.43, 0.22, 0.085], [0.04, 0.1, -0.1]],
-    ["pectorals", "chest", "strap", [-0.28, 1.04, 0.34], [0.055, 0.5, 0.038], [1.2, -0.04, 1.38]],
-    ["pectorals", "chest", "strap", [0.28, 1.04, 0.34], [0.055, 0.5, 0.038], [1.2, 0.04, -1.38]],
-    ["serratus anterior", "chest", "strap", [-0.66, 0.82, 0.13], [0.09, 0.42, 0.08], [0.2, 0.02, -0.42]],
-    ["serratus anterior", "chest", "strap", [0.66, 0.82, 0.13], [0.09, 0.42, 0.08], [0.2, -0.02, 0.42]],
-    ["delts", "shoulders", "striated", [-0.72, 1.32, 0.05], [0.18, 0.28, 0.16], [0.04, 0, 0.56]],
-    ["delts", "shoulders", "striated", [0.72, 1.32, 0.05], [0.18, 0.28, 0.16], [0.04, 0, -0.56]],
-    ["biceps", "upper arms", "belly", [-0.9, 0.78, 0.17], [0.086, 0.66, 0.075], [0, 0, 0.22]],
-    ["biceps", "upper arms", "belly", [0.9, 0.78, 0.17], [0.086, 0.66, 0.075], [0, 0, -0.22]],
-    ["triceps", "upper arms", "belly", [-0.97, 0.74, -0.1], [0.088, 0.68, 0.075], [0, 0, 0.24]],
-    ["triceps", "upper arms", "belly", [0.97, 0.74, -0.1], [0.088, 0.68, 0.075], [0, 0, -0.24]],
-    ["forearms", "lower arms", "strap", [-1.05, -0.03, 0.09], [0.055, 0.74, 0.046], [0, 0, 0.12]],
-    ["forearms", "lower arms", "strap", [-1.14, -0.04, -0.02], [0.042, 0.7, 0.04], [0, 0, 0.22]],
-    ["forearms", "lower arms", "strap", [-0.98, -0.06, -0.04], [0.035, 0.66, 0.034], [0, 0, -0.02]],
-    ["forearms", "lower arms", "strap", [1.05, -0.03, 0.09], [0.055, 0.74, 0.046], [0, 0, -0.12]],
-    ["forearms", "lower arms", "strap", [1.14, -0.04, -0.02], [0.042, 0.7, 0.04], [0, 0, -0.22]],
-    ["forearms", "lower arms", "strap", [0.98, -0.06, -0.04], [0.035, 0.66, 0.034], [0, 0, 0.02]],
-    ["abs", "waist", "block", [-0.14, 0.75, 0.36], [0.13, 0.13, 0.045], [0, 0, 0]],
-    ["abs", "waist", "block", [0.14, 0.75, 0.36], [0.13, 0.13, 0.045], [0, 0, 0]],
-    ["abs", "waist", "block", [-0.14, 0.48, 0.37], [0.13, 0.13, 0.045], [0, 0, 0]],
-    ["abs", "waist", "block", [0.14, 0.48, 0.37], [0.13, 0.13, 0.045], [0, 0, 0]],
-    ["abs", "waist", "block", [-0.14, 0.21, 0.35], [0.125, 0.14, 0.045], [0, 0, 0]],
-    ["abs", "waist", "block", [0.14, 0.21, 0.35], [0.125, 0.14, 0.045], [0, 0, 0]],
-    ["abs", "waist", "block", [-0.12, -0.05, 0.31], [0.105, 0.12, 0.04], [0, 0, 0]],
-    ["abs", "waist", "block", [0.12, -0.05, 0.31], [0.105, 0.12, 0.04], [0, 0, 0]],
-    ["obliques", "waist", "flat", [-0.36, 0.34, 0.16], [0.14, 0.52, 0.07], [0.16, 0, -0.2]],
-    ["obliques", "waist", "flat", [0.36, 0.34, 0.16], [0.14, 0.52, 0.07], [0.16, 0, 0.2]],
-    ["hip flexors", "waist", "strap", [-0.22, -0.3, 0.24], [0.08, 0.48, 0.07], [0.22, 0, -0.06]],
-    ["hip flexors", "waist", "strap", [0.22, -0.3, 0.24], [0.08, 0.48, 0.07], [0.22, 0, 0.06]],
-    ["glutes", "upper legs", "striated", [-0.23, -0.5, -0.24], [0.28, 0.29, 0.16], [-0.08, 0.04, 0]],
-    ["glutes", "upper legs", "striated", [0.23, -0.5, -0.24], [0.28, 0.29, 0.16], [-0.08, -0.04, 0]],
-    ["quads", "upper legs", "belly", [-0.22, -1.08, 0.18], [0.115, 0.9, 0.09], [0.04, 0, -0.03]],
-    ["quads", "upper legs", "belly", [0.22, -1.08, 0.18], [0.115, 0.9, 0.09], [0.04, 0, 0.03]],
-    ["quads", "upper legs", "strap", [-0.39, -1.08, 0.06], [0.052, 0.78, 0.045], [0.04, 0, -0.08]],
-    ["quads", "upper legs", "strap", [0.39, -1.08, 0.06], [0.052, 0.78, 0.045], [0.04, 0, 0.08]],
-    ["quads", "upper legs", "strap", [-0.12, -1.15, 0.12], [0.05, 0.74, 0.043], [0.04, 0, 0.03]],
-    ["quads", "upper legs", "strap", [0.12, -1.15, 0.12], [0.05, 0.74, 0.043], [0.04, 0, -0.03]],
-    ["hamstrings", "upper legs", "belly", [-0.27, -1.12, -0.2], [0.1, 0.86, 0.1], [-0.04, 0, -0.04]],
-    ["hamstrings", "upper legs", "belly", [0.27, -1.12, -0.2], [0.1, 0.86, 0.1], [-0.04, 0, 0.04]],
-    ["adductors", "upper legs", "strap", [-0.1, -1.04, 0.03], [0.08, 0.76, 0.07], [0.08, 0, 0.02]],
-    ["adductors", "upper legs", "strap", [0.1, -1.04, 0.03], [0.08, 0.76, 0.07], [0.08, 0, -0.02]],
-    ["abductors", "upper legs", "strap", [-0.51, -0.95, 0.01], [0.08, 0.72, 0.08], [0, 0, 0.1]],
-    ["abductors", "upper legs", "strap", [0.51, -0.95, 0.01], [0.08, 0.72, 0.08], [0, 0, -0.1]],
-    ["calves", "lower legs", "belly", [-0.28, -2.02, -0.1], [0.108, 0.74, 0.095], [-0.02, 0, -0.02]],
-    ["calves", "lower legs", "belly", [0.28, -2.02, -0.1], [0.108, 0.74, 0.095], [-0.02, 0, 0.02]],
-    ["calves", "lower legs", "strap", [-0.2, -2.13, 0.08], [0.052, 0.7, 0.043], [0.02, 0, -0.04]],
-    ["calves", "lower legs", "strap", [0.2, -2.13, 0.08], [0.052, 0.7, 0.043], [0.02, 0, 0.04]],
-    ["cardiovascular system", "cardio", "sphere", [0.17, 0.92, 0.43], [0.14, 0.14, 0.14], [0, 0, 0]],
-  ];
-
-  specs.forEach(([subgroup, group, type, position, scale, rotation]) => {
-    const material = getMuscleMaterial(group);
-    const mesh = createMuscleMesh(type, material);
-    mesh.position.set(...position);
-    mesh.scale.set(...scale);
-    mesh.rotation.set(...rotation);
-    mesh.userData = { subgroup, group };
-    body.add(mesh);
-    interactiveMeshes.push(mesh);
-    addSurfaceLines(body, mesh, type);
-  });
-}
-
-function createMuscleMesh(type, material, options = {}) {
-  if (type === "sphere") {
-    return new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), material.clone());
-  }
-  if (type === "flat" || type === "fan" || type === "block") {
-    const mesh = new THREE.Mesh(createOrganicEllipsoidGeometry(type), material.clone());
-    mesh.material.roughness = 0.68;
-    return mesh;
-  }
-  return new THREE.Mesh(createTaperedMuscleGeometry(type, options), material.clone());
-}
-
-function createCapsule(name, subgroup, group, position, scale, material) {
-  const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.55, 1, 12, 24), material);
-  mesh.name = name;
-  mesh.position.set(...position);
-  mesh.scale.set(...scale);
-  mesh.userData = { subgroup, group, passive: true };
-  return mesh;
-}
-
-function createTaperedMuscleGeometry(type) {
-  const radialSegments = 48;
-  const heightSegments = 32;
-  const groovesByType = {
-    strap: 2,
-    belly: 4,
-    striated: 8,
-    tendon: 1,
-  };
-  const grooveCount = groovesByType[type] || 3;
-  const grooveDepth = type === "tendon" ? 0.01 : type === "striated" ? 0.105 : 0.075;
-  const vertices = [];
-  const indices = [];
-
-  for (let yIndex = 0; yIndex <= heightSegments; yIndex += 1) {
-    const v = yIndex / heightSegments;
-    const y = v - 0.5;
-    const taper = Math.sin(Math.PI * v);
-      const belly = Math.pow(Math.max(taper, 0.001), type === "strap" ? 0.55 : 0.72);
-      const endPinch = 1 - Math.abs(v - 0.5) * 0.38;
-
-    for (let i = 0; i <= radialSegments; i += 1) {
-      const u = i / radialSegments;
-      const theta = u * Math.PI * 2;
-      const groove = 1 - Math.pow(Math.max(Math.cos(theta * grooveCount), 0), 8) * grooveDepth;
-      const tendonPull = 1 - Math.pow(Math.abs(v - 0.5) * 2, 4) * (type === "tendon" ? 0 : 0.18);
-      const asymmetry = 1 + Math.sin(theta + v * Math.PI) * 0.035 + Math.sin(v * 21 + theta * 2) * 0.012;
-      const seam = 1 - Math.pow(Math.max(Math.cos(theta * 2), 0), 16) * 0.035;
-      const radius = belly * endPinch * groove * tendonPull * asymmetry * seam;
-      const x = Math.cos(theta) * radius;
-      const z = Math.sin(theta) * radius * (type === "strap" ? 0.5 : 0.68);
-      vertices.push(x, y, z);
-    }
-  }
-
-  for (let yIndex = 0; yIndex < heightSegments; yIndex += 1) {
-    for (let i = 0; i < radialSegments; i += 1) {
-      const a = yIndex * (radialSegments + 1) + i;
-      const b = a + radialSegments + 1;
-      indices.push(a, b, a + 1, b, b + 1, a + 1);
-    }
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-function createOrganicEllipsoidGeometry(type) {
-  const geometry = new THREE.SphereGeometry(1, 40, 24);
-  const position = geometry.attributes.position;
-  const vertex = new THREE.Vector3();
-
-  for (let i = 0; i < position.count; i += 1) {
-    vertex.fromBufferAttribute(position, i);
-    const yBand = Math.abs(vertex.y);
-    const theta = Math.atan2(vertex.z, vertex.x);
-    let ridge = 1;
-
-    if (type === "fan") {
-      ridge -= Math.pow(Math.max(Math.cos(theta * 8), 0), 8) * 0.105;
-      vertex.x *= 1.18 - yBand * 0.28;
-      vertex.y *= 0.72;
-      vertex.z *= 0.38 + yBand * 0.16;
-    } else if (type === "block") {
-      ridge -= Math.pow(Math.max(Math.cos(theta * 4), 0), 8) * 0.06;
-      vertex.x *= 0.82;
-      vertex.y *= 0.62;
-      vertex.z *= 0.3;
-    } else {
-      ridge -= Math.pow(Math.max(Math.cos(theta * 6), 0), 8) * 0.07;
-      vertex.x *= 1.03;
-      vertex.y *= 0.78;
-      vertex.z *= 0.34;
-    }
-
-    vertex.multiplyScalar(ridge);
-    position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-  }
-
-  position.needsUpdate = true;
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-function addSurfaceLines(body, mesh, type) {
-  if (type === "sphere" || type === "tendon") return;
-
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x251c18,
-    transparent: true,
-    opacity: 0.46,
-  });
-  const count = type === "fan" ? 11 : type === "block" ? 3 : type === "flat" ? 7 : 6;
-
-  for (let i = 0; i < count; i += 1) {
-    const offset = count === 1 ? 0 : (i / (count - 1) - 0.5) * 0.7;
-    const points = [];
-    for (let step = 0; step <= 24; step += 1) {
-      const t = step / 24;
-      const y = (t - 0.5) * 1.5;
-      const x = type === "fan" ? offset * (1 - t * 0.5) : offset * 0.12;
-      const z = 0.9 + Math.sin(t * Math.PI) * 0.08;
-      const local = new THREE.Vector3(x, y, z);
-      local.multiply(mesh.scale);
-      local.applyEuler(mesh.rotation);
-      local.add(mesh.position);
-      points.push(local);
-    }
-    const curve = new THREE.BufferGeometry().setFromPoints(points);
-    body.add(new THREE.Line(curve, lineMaterial));
-  }
-
-  if (type === "belly" || type === "striated") {
-    const crossMaterial = new THREE.LineBasicMaterial({
-      color: 0xead7bc,
-      transparent: true,
-      opacity: 0.2,
-    });
-    for (let band = 0; band < 5; band += 1) {
-      const t = (band + 1) / 6;
-      const points = [];
-      for (let step = 0; step <= 16; step += 1) {
-        const angle = (step / 16) * Math.PI * 2;
-        const local = new THREE.Vector3(Math.cos(angle) * 0.5, t - 0.5, Math.sin(angle) * 0.44);
-        local.multiply(mesh.scale);
-        local.applyEuler(mesh.rotation);
-        local.add(mesh.position);
-        points.push(local);
-      }
-      body.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), crossMaterial));
-    }
-  }
-}
-
-function getMuscleMaterial(group) {
-  if (!materials.has(group)) {
-    materials.set(group, makeMaterial(group, atlasGroupColors[group] || "#9b8f85", 0.76, 0.22));
-  }
-  return materials.get(group);
-}
-
-function makeMaterial(name, color, roughness, metalness) {
-  const material = new THREE.MeshStandardMaterial({
-    name,
-    color,
-    roughness,
-    metalness,
-    emissive: color,
-    emissiveIntensity: 0.01,
-  });
-  if (name !== "bone" && name !== "tendon") {
-    material.bumpMap = getFiberTexture();
-    material.bumpScale = 0.045;
-  }
-  return material;
-}
-
-let fiberTexture = null;
-
-function getFiberTexture() {
-  if (fiberTexture) return fiberTexture;
-  const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#777";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  for (let y = 0; y < canvas.height; y += 2) {
-    const shade = 105 + Math.sin(y * 0.45) * 28 + Math.sin(y * 1.7) * 9;
-    ctx.strokeStyle = `rgb(${shade}, ${shade}, ${shade})`;
-    ctx.beginPath();
-    ctx.moveTo(0, y + Math.sin(y * 0.18) * 2);
-    ctx.bezierCurveTo(32, y - 4, 72, y + 5, 128, y + Math.sin(y * 0.11) * 2);
-    ctx.stroke();
-  }
-  fiberTexture = new THREE.CanvasTexture(canvas);
-  fiberTexture.wrapS = THREE.RepeatWrapping;
-  fiberTexture.wrapT = THREE.RepeatWrapping;
-  fiberTexture.repeat.set(1, 3);
-  return fiberTexture;
+function renderZones(view) {
+  return bodyZones
+    .filter((zone) => zone.view === view)
+    .map((zone) => {
+      const color = getSubgroupColor(zone.subgroup);
+      return `<path class="muscle-zone" data-group="${zone.group}" data-subgroup="${zone.subgroup}" d="${zone.path}" style="--zone-color: ${color}; fill: ${color};" tabindex="0" role="button" aria-label="${formatLabel(zone.subgroup)}" />`;
+    })
+    .join("");
 }
 
 function bindEvents() {
@@ -896,51 +262,41 @@ function bindEvents() {
     button.addEventListener("click", () => setLanguage(button.dataset.lang));
   });
 
-  els.canvas.addEventListener("pointermove", handlePointerMove);
-  els.canvas.addEventListener("pointerleave", clearHover);
-  els.canvas.addEventListener("click", () => {
-    if (state.hovered) selectSubgroup(state.hovered.subgroup, state.hovered.group);
+  els.map.addEventListener("pointermove", handlePointerMove);
+  els.map.addEventListener("pointerleave", clearHover);
+  els.map.addEventListener("click", (event) => {
+    const zone = event.target.closest(".muscle-zone");
+    if (zone) selectSubgroup(zone.dataset.subgroup, zone.dataset.group);
   });
-  window.addEventListener("resize", resizeViewer);
+  els.map.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const zone = event.target.closest(".muscle-zone");
+    if (!zone) return;
+    event.preventDefault();
+    selectSubgroup(zone.dataset.subgroup, zone.dataset.group);
+  });
 }
 
 function handlePointerMove(event) {
-  const rect = els.canvas.getBoundingClientRect();
-  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-  raycaster.setFromCamera(pointer, camera);
-  const hit = raycaster.intersectObjects(interactiveMeshes, false)[0];
-  if (!hit) {
+  const zone = event.target.closest(".muscle-zone");
+  if (!zone) {
     clearHover();
     return;
   }
 
-  setHoveredMesh(hit.object);
+  state.hovered = { subgroup: zone.dataset.subgroup, group: zone.dataset.group };
+  const rect = els.bodyStage.getBoundingClientRect();
   els.tooltip.hidden = false;
   els.tooltip.style.left = `${event.clientX - rect.left}px`;
   els.tooltip.style.top = `${event.clientY - rect.top}px`;
-  els.tooltip.textContent = `${formatLabel(hit.object.userData.subgroup)} · ${
-    state.counts.subgroups[hit.object.userData.subgroup] || 0
+  els.tooltip.textContent = `${formatLabel(zone.dataset.subgroup)} · ${
+    state.counts.subgroups[zone.dataset.subgroup] || 0
   } ${copy[state.lang].exercisesShort}`;
 }
 
-function setHoveredMesh(mesh) {
-  if (hoveredMesh === mesh) return;
-  if (hoveredMesh && hoveredMesh !== selectedMesh) updateMeshState();
-  hoveredMesh = mesh;
-  state.hovered = mesh.userData;
-  if (realModelLoaded) mesh.material.colorWrite = false;
-  mesh.material.emissiveIntensity = 0.28;
-  els.canvas.style.cursor = "pointer";
-}
-
 function clearHover() {
-  if (hoveredMesh && hoveredMesh !== selectedMesh) updateMeshState();
-  hoveredMesh = null;
   state.hovered = null;
   els.tooltip.hidden = true;
-  els.canvas.style.cursor = "grab";
 }
 
 function setLanguage(lang) {
@@ -948,6 +304,7 @@ function setLanguage(lang) {
   state.lang = lang;
   localStorage.setItem(LANG_STORAGE_KEY, lang);
   translate();
+  renderMuscleMap();
   renderAtlas();
 }
 
@@ -1009,32 +366,25 @@ function renderAtlas() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = `subgroup-dot${state.subgroup === subgroup ? " is-active" : ""}`;
-      button.style.setProperty("--zone-color", getSubgroupColor(subgroup).getStyle());
+      button.style.setProperty("--zone-color", getSubgroupColor(subgroup));
       button.addEventListener("click", () => selectSubgroup(subgroup, targetGroup));
       button.textContent = `${formatLabel(subgroup)} · ${subgroupCounts[subgroup].toLocaleString(state.lang)}`;
       return button;
     }),
   );
 
-  updateMeshState();
+  updateZoneState();
   updateSelection();
 }
 
-function updateMeshState() {
-  interactiveMeshes.forEach((mesh) => {
-    const isGroup = state.group !== "all" && mesh.userData.group === state.group;
-    const isSubgroup = state.subgroup !== "all" && mesh.userData.subgroup === state.subgroup;
+function updateZoneState() {
+  els.map.querySelectorAll(".muscle-zone").forEach((zone) => {
+    const isGroup = state.group !== "all" && zone.dataset.group === state.group;
+    const isSubgroup = state.subgroup !== "all" && zone.dataset.subgroup === state.subgroup;
     const isActive = isSubgroup || (state.subgroup === "all" && isGroup);
-    const baseOpacity = realModelLoaded ? 0 : 1;
-    const mutedOpacity = realModelLoaded ? 0 : 0.28;
-    mesh.material.opacity = state.group === "all" || isGroup || isSubgroup ? baseOpacity : mutedOpacity;
-    if (isActive) mesh.material.opacity = realModelLoaded ? 0 : 1;
-    mesh.material.transparent = true;
-    mesh.material.colorWrite = !realModelLoaded;
-    mesh.material.depthWrite = !realModelLoaded;
-    mesh.material.emissiveIntensity = isActive ? 0.42 : 0.03;
-    mesh.scale.multiplyScalar(1);
-    if (isSubgroup) selectedMesh = mesh;
+    const isMuted = state.group !== "all" && !isGroup && !isSubgroup;
+    zone.classList.toggle("is-active", isActive);
+    zone.classList.toggle("is-muted", isMuted);
   });
 }
 
@@ -1051,7 +401,6 @@ function countBy(items, getter) {
 function selectGroup(group) {
   state.group = group;
   state.subgroup = "all";
-  selectedMesh = null;
   renderAtlas();
 }
 
@@ -1078,23 +427,62 @@ function getCatalogUrl() {
   return query ? `catalog.html?${query}` : "catalog.html";
 }
 
-function resizeViewer() {
-  const rect = els.bodyStage.getBoundingClientRect();
-  const width = Math.max(Math.floor(rect.width), 320);
-  const height = Math.max(Math.floor(rect.height), 520);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(width, height, false);
+function getSubgroupColor(subgroup) {
+  const group = atlasTargetGroups[subgroup] || "waist";
+  const [hueOffset, saturationOffset, lightnessOffset] = subgroupToneOffsets[subgroup] || [0, 0, 0];
+  const [hue, saturation, lightness] = hexToHsl(atlasGroupColors[group] || "#9b8f85");
+  return hslToHex(
+    (hue + hueOffset + 1) % 1,
+    clamp(saturation + saturationOffset, 0.25, 0.95),
+    clamp(lightness + lightnessOffset, 0.28, 0.72),
+  );
 }
 
-function animate() {
-  rafId = requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
+function hexToHsl(hex) {
+  const normalized = hex.replace("#", "");
+  const red = parseInt(normalized.slice(0, 2), 16) / 255;
+  const green = parseInt(normalized.slice(2, 4), 16) / 255;
+  const blue = parseInt(normalized.slice(4, 6), 16) / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const lightness = (max + min) / 2;
+
+  if (max === min) return [0, 0, lightness];
+
+  const delta = max - min;
+  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+  let hue = 0;
+  if (max === red) hue = (green - blue) / delta + (green < blue ? 6 : 0);
+  if (max === green) hue = (blue - red) / delta + 2;
+  if (max === blue) hue = (red - green) / delta + 4;
+  return [hue / 6, saturation, lightness];
+}
+
+function hslToHex(hue, saturation, lightness) {
+  const toRgb = (p, q, t) => {
+    let value = t;
+    if (value < 0) value += 1;
+    if (value > 1) value -= 1;
+    if (value < 1 / 6) return p + (q - p) * 6 * value;
+    if (value < 1 / 2) return q;
+    if (value < 2 / 3) return p + (q - p) * (2 / 3 - value) * 6;
+    return p;
+  };
+
+  const q = lightness < 0.5 ? lightness * (1 + saturation) : lightness + saturation - lightness * saturation;
+  const p = 2 * lightness - q;
+  const channels = [
+    toRgb(p, q, hue + 1 / 3),
+    toRgb(p, q, hue),
+    toRgb(p, q, hue - 1 / 3),
+  ];
+  return `#${channels.map((channel) => Math.round(channel * 255).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 init().catch((error) => {
-  cancelAnimationFrame(rafId);
   console.error(error);
 });

@@ -1,8 +1,0 @@
-## Attribution
-
-- **BodyParts3D**, &copy; The Database Center for Life Science, licensed under [CC Attribution-Share Alike 2.1 Japan](https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en)
-- **Z-Anatomy** by Gauthier Kervyn, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-
-## License
-
-This project's source code is available under the [MIT License](https://opensource.org/licenses/MIT). The anatomical mesh data included in the `public/` directory is subject to the licenses of its respective data sources (see Attribution above).
