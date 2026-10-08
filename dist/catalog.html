@@ -163,10 +163,33 @@
         </div>
 
         <div id="equipment-body" class="equipment-body">
-          <label class="equipment-filter">
+          <div class="equipment-filter">
             <span id="equipment-select-label">Seleccionar equipo</span>
-            <select id="equipment-select"></select>
-          </label>
+            <div class="chip-scroller">
+              <button
+                id="equipment-prev"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver equipos anteriores"
+              >
+                &lt;
+              </button>
+              <div
+                id="equipment-chips"
+                class="chip-row equipment-row"
+                role="listbox"
+                aria-label="Equipos"
+              ></div>
+              <button
+                id="equipment-next"
+                class="scroll-button"
+                type="button"
+                aria-label="Ver mas equipos"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -212,6 +235,6 @@
       </article>
     </dialog>
 
-    <script src="app.js?v=20261008-equipment-panel" type="module"></script>
+    <script src="app.js?v=20261008-equipment-tags" type="module"></script>
   </body>
 </html>

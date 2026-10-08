@@ -46,6 +46,8 @@ const copy = {
     nextGroups: "Ver mas grupos",
     previousSubgroups: "Ver subgrupos anteriores",
     nextSubgroups: "Ver mas subgrupos",
+    previousEquipment: "Ver equipos anteriores",
+    nextEquipment: "Ver mas equipos",
     muscleAtlasKicker: "Mapa muscular 3D",
     muscleAtlasTitle: "Explora el cuerpo por grupos",
     muscleAtlasDescription: "Toca una zona del cuerpo para filtrar ejercicios por grupo muscular.",
@@ -123,6 +125,8 @@ const copy = {
     nextGroups: "See more groups",
     previousSubgroups: "See previous subgroups",
     nextSubgroups: "See more subgroups",
+    previousEquipment: "See previous equipment",
+    nextEquipment: "See more equipment",
     muscleAtlasKicker: "3D muscle map",
     muscleAtlasTitle: "Explore the body by groups",
     muscleAtlasDescription: "Tap a body zone to filter exercises by muscle group.",
@@ -321,6 +325,9 @@ const els = {
   subgroupChips: document.querySelector("#subgroup-chips"),
   subgroupPrev: document.querySelector("#subgroup-prev"),
   subgroupNext: document.querySelector("#subgroup-next"),
+  equipmentChips: document.querySelector("#equipment-chips"),
+  equipmentPrev: document.querySelector("#equipment-prev"),
+  equipmentNext: document.querySelector("#equipment-next"),
   muscleAtlasKicker: document.querySelector("#muscle-atlas-kicker"),
   muscleAtlasTitle: document.querySelector("#muscle-atlas-title"),
   muscleAtlasDescription: document.querySelector("#muscle-atlas-description"),
@@ -331,7 +338,6 @@ const els = {
   atlasSubgroupsLabel: document.querySelector("#atlas-subgroups-label"),
   atlasGroups: document.querySelector("#atlas-groups"),
   atlasSubgroups: document.querySelector("#atlas-subgroups"),
-  equipmentSelect: document.querySelector("#equipment-select"),
   clearFilters: document.querySelector("#clear-filters"),
   grid: document.querySelector("#exercise-grid"),
   loadMore: document.querySelector("#load-more"),
@@ -371,6 +377,8 @@ const getFilterSubgroups = (exercise) => {
 
 const matchesSubgroup = (exercise, subgroup) =>
   subgroup === "all" || getFilterSubgroups(exercise).includes(subgroup);
+
+const matchesSearch = (exercise, query) => !query || exercise.searchText.includes(query);
 
 const normalizeExercise = (exercise) => ({
   ...exercise,
@@ -417,15 +425,10 @@ function bindEvents() {
     applyFilters();
   });
 
-  els.equipmentSelect.addEventListener("change", () => {
-    state.equipment = els.equipmentSelect.value;
-    state.visibleCount = PAGE_SIZE;
-    applyFilters();
-  });
-
   bindChipScroller(els.groupChips, els.groupPrev, els.groupNext);
   bindChipScroller(els.subgroupChips, els.subgroupPrev, els.subgroupNext);
   bindChipScroller(els.categoryChips, els.categoryPrev, els.categoryNext);
+  bindChipScroller(els.equipmentChips, els.equipmentPrev, els.equipmentNext);
 
   if (els.bodyZones && els.atlasGroups && els.atlasSubgroups) {
     els.bodyZones.addEventListener("click", (event) => {
@@ -468,7 +471,6 @@ function bindEvents() {
     state.query = "";
     state.visibleCount = PAGE_SIZE;
     els.searchInput.value = "";
-    els.equipmentSelect.value = "all";
     renderCategoryChips();
     renderGroupChips();
     renderSubgroupOptions();
@@ -550,6 +552,8 @@ function translateStaticText() {
   els.groupNext.setAttribute("aria-label", text.nextGroups);
   els.subgroupPrev.setAttribute("aria-label", text.previousSubgroups);
   els.subgroupNext.setAttribute("aria-label", text.nextSubgroups);
+  els.equipmentPrev.setAttribute("aria-label", text.previousEquipment);
+  els.equipmentNext.setAttribute("aria-label", text.nextEquipment);
   if (els.muscleAtlasKicker) els.muscleAtlasKicker.textContent = text.muscleAtlasKicker;
   if (els.muscleAtlasTitle) els.muscleAtlasTitle.textContent = text.muscleAtlasTitle;
   if (els.muscleAtlasDescription) els.muscleAtlasDescription.textContent = text.muscleAtlasDescription;
@@ -633,6 +637,20 @@ function createSubgroupChip(label, value, isActive) {
     state.subgroup = value;
     state.visibleCount = PAGE_SIZE;
     renderSubgroupOptions();
+    applyFilters();
+  });
+  return button;
+}
+
+function createEquipmentChip(label, value, count, isActive) {
+  const button = createBaseChip(
+    value === "all" ? label : `${label} · ${count.toLocaleString(state.lang)}`,
+    value,
+    isActive,
+  );
+  button.addEventListener("click", () => {
+    state.equipment = value;
+    state.visibleCount = PAGE_SIZE;
     applyFilters();
   });
   return button;
@@ -820,37 +838,50 @@ function updateScrollButtons(row, previousButton, nextButton) {
 }
 
 function renderEquipmentOptions() {
-  const equipment = uniqueSorted(state.exercises.map((exercise) => exercise.equipment));
-  const available = new Set(equipment);
+  const scopedExercises = state.exercises.filter((exercise) => {
+    const byCategory =
+      state.groupCategory === "all" ||
+      (bodyCategoryGroups[state.groupCategory] || []).includes(exercise.body_part);
+    const byGroup = state.group === "all" || exercise.body_part === state.group;
+    const bySubgroup = matchesSubgroup(exercise, state.subgroup);
+    const byQuery = matchesSearch(exercise, state.query);
+    return byCategory && byGroup && bySubgroup && byQuery;
+  });
+  const equipmentCounts = countBy(scopedExercises, (exercise) => exercise.equipment);
+  const available = new Set(Object.keys(equipmentCounts));
   const used = new Set();
-  const allOption = new Option(copy[state.lang].allEquipment, "all");
-  const groups = equipmentGroups
-    .map((group) => {
-      const groupElement = document.createElement("optgroup");
-      groupElement.label = copy[state.lang].equipmentGroups[group.key];
-      group.items
-        .filter((item) => available.has(item))
-        .forEach((item) => {
-          used.add(item);
-          groupElement.append(new Option(formatLabel(item), item));
-        });
-      return groupElement;
-    })
-    .filter((groupElement) => groupElement.children.length > 0);
+  const orderedEquipment = equipmentGroups.flatMap((group) =>
+    group.items.filter((item) => {
+      if (!available.has(item)) return false;
+      used.add(item);
+      return true;
+    }),
+  );
+  const uncategorized = uniqueSorted([...available].filter((item) => !used.has(item)));
+  const equipment = [...orderedEquipment, ...uncategorized];
 
-  const uncategorized = equipment.filter((item) => !used.has(item));
-  if (uncategorized.length > 0) {
-    const otherGroup = document.createElement("optgroup");
-    otherGroup.label = copy[state.lang].uncategorized;
-    uncategorized.forEach((item) => otherGroup.append(new Option(formatLabel(item), item)));
-    groups.push(otherGroup);
+  if (state.equipment !== "all" && !available.has(state.equipment)) {
+    state.equipment = "all";
   }
 
-  els.equipmentSelect.replaceChildren(allOption, ...groups);
-  els.equipmentSelect.value = state.equipment;
+  const allButton = createEquipmentChip(
+    copy[state.lang].allEquipment,
+    "all",
+    scopedExercises.length,
+    state.equipment === "all",
+  );
+  const equipmentButtons = equipment.map((item) =>
+    createEquipmentChip(formatLabel(item), item, equipmentCounts[item], state.equipment === item),
+  );
+
+  els.equipmentChips.replaceChildren(allButton, ...equipmentButtons);
+  requestAnimationFrame(() =>
+    updateScrollButtons(els.equipmentChips, els.equipmentPrev, els.equipmentNext),
+  );
 }
 
 function applyFilters() {
+  renderEquipmentOptions();
   state.filtered = state.exercises.filter((exercise) => {
     const byCategory =
       state.groupCategory === "all" ||
@@ -858,7 +889,7 @@ function applyFilters() {
     const byGroup = state.group === "all" || exercise.body_part === state.group;
     const bySubgroup = matchesSubgroup(exercise, state.subgroup);
     const byEquipment = state.equipment === "all" || exercise.equipment === state.equipment;
-    const byQuery = !state.query || exercise.searchText.includes(state.query);
+    const byQuery = matchesSearch(exercise, state.query);
     return byCategory && byGroup && bySubgroup && byEquipment && byQuery;
   });
 
