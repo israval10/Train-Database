@@ -142,13 +142,31 @@
               </button>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div class="equipment-filter">
-            <label>
-              <span id="equipment-label">Equipo</span>
-              <select id="equipment-select"></select>
-            </label>
+      <section class="equipment-panel" aria-label="Filtro de equipo">
+        <div class="filter-panel-header">
+          <div>
+            <span id="equipment-label">Equipo</span>
+            <strong id="equipment-summary">Todo el equipo</strong>
           </div>
+          <button
+            id="equipment-toggle"
+            class="filter-toggle"
+            type="button"
+            aria-controls="equipment-body"
+            aria-expanded="true"
+          >
+            Ocultar
+          </button>
+        </div>
+
+        <div id="equipment-body" class="equipment-body">
+          <label class="equipment-filter">
+            <span id="equipment-select-label">Seleccionar equipo</span>
+            <select id="equipment-select"></select>
+          </label>
         </div>
       </section>
 
@@ -194,6 +212,6 @@
       </article>
     </dialog>
 
-    <script src="app.js" type="module"></script>
+    <script src="app.js?v=20261008-equipment-panel" type="module"></script>
   </body>
 </html>

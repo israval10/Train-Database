@@ -16,6 +16,9 @@ const copy = {
     group: "Grupo muscular",
     subgroup: "Subgrupo muscular",
     equipment: "Equipo",
+    equipmentSelect: "Seleccionar equipo",
+    hideEquipment: "Ocultar",
+    showEquipment: "Mostrar",
     clear: "Limpiar",
     hideFilters: "Ocultar filtros",
     showFilters: "Mostrar filtros",
@@ -90,6 +93,9 @@ const copy = {
     group: "Muscle group",
     subgroup: "Muscle subgroup",
     equipment: "Equipment",
+    equipmentSelect: "Select equipment",
+    hideEquipment: "Hide",
+    showEquipment: "Show",
     clear: "Clear",
     hideFilters: "Hide filters",
     showFilters: "Show filters",
@@ -297,6 +303,11 @@ const els = {
   groupLabel: document.querySelector("#group-label"),
   subgroupLabel: document.querySelector("#subgroup-label"),
   equipmentLabel: document.querySelector("#equipment-label"),
+  equipmentSelectLabel: document.querySelector("#equipment-select-label"),
+  equipmentPanel: document.querySelector(".equipment-panel"),
+  equipmentBody: document.querySelector("#equipment-body"),
+  equipmentToggle: document.querySelector("#equipment-toggle"),
+  equipmentSummary: document.querySelector("#equipment-summary"),
   resultCount: document.querySelector("#result-count"),
   resultLabel: document.querySelector("#result-label"),
   activeFilterCopy: document.querySelector("#active-filter-copy"),
@@ -440,6 +451,13 @@ function bindEvents() {
     els.filterToggle.textContent = isCollapsed ? copy[state.lang].showFilters : copy[state.lang].hideFilters;
   });
 
+  els.equipmentToggle.addEventListener("click", () => {
+    const isCollapsed = els.equipmentPanel.classList.toggle("is-collapsed");
+    els.equipmentToggle.setAttribute("aria-expanded", String(!isCollapsed));
+    els.equipmentBody.hidden = isCollapsed;
+    els.equipmentToggle.textContent = isCollapsed ? copy[state.lang].showEquipment : copy[state.lang].hideEquipment;
+  });
+
   window.addEventListener("resize", syncStickyOffset);
 
   els.clearFilters.addEventListener("click", () => {
@@ -517,8 +535,10 @@ function translateStaticText() {
   els.groupLabel.textContent = text.group;
   els.subgroupLabel.textContent = text.subgroup;
   els.equipmentLabel.textContent = text.equipment;
+  els.equipmentSelectLabel.textContent = text.equipmentSelect;
   els.clearFilters.textContent = text.clear;
   els.filterToggle.textContent = els.filterBody.hidden ? text.showFilters : text.hideFilters;
+  els.equipmentToggle.textContent = els.equipmentBody.hidden ? text.showEquipment : text.hideEquipment;
   els.loadMore.textContent = text.loadMore;
   els.emptyState.textContent = text.empty;
   els.closeDialog.setAttribute("aria-label", text.closeDetail);
@@ -860,6 +880,8 @@ function renderResultMeta() {
   const summary = parts.length ? parts.join(" / ") : copy[state.lang].allGroups;
   els.activeFilterCopy.textContent = summary;
   els.filterSummary.textContent = summary;
+  els.equipmentSummary.textContent =
+    state.equipment === "all" ? copy[state.lang].allEquipment : formatLabel(state.equipment);
 }
 
 function syncStickyOffset() {
