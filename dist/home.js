@@ -223,7 +223,6 @@ function renderMuscleMap() {
   els.map.innerHTML = `
     <svg class="muscle-diagram" viewBox="0 0 600 696" role="img" aria-labelledby="muscle-map-title">
       <title id="muscle-map-title">${copy[state.lang].atlasAria}</title>
-      <image class="body-reference-image" href="assets/body-reference.png" x="0" y="0" width="600" height="696" preserveAspectRatio="none" alt="" />
       ${renderSpecialControl()}
       <g class="body-view" aria-label="${copy[state.lang].backView}">
         ${renderZones("back")}
@@ -243,44 +242,6 @@ function renderSpecialControl() {
       <circle cx="300" cy="20" r="14" />
       <path d="M300 28 C292 23 289 18 291 14 C293 10 298 11 300 15 C302 11 307 10 309 14 C311 18 308 23 300 28 Z" />
       <text x="300" y="47">${formatLabel(subgroup)}</text>
-    </g>
-  `;
-}
-
-function renderBodyBase(x) {
-  return `
-    <g class="body-base" transform="translate(${x} 0)">
-      <path d="M200 30 C225 30 242 49 242 78 L242 89 C247 90 250 94 249 101 C247 118 242 129 232 134 L230 155 L282 184 C294 191 302 199 305 211 L322 269 C329 292 333 326 333 365 L347 406 C353 424 347 441 331 454 L325 477 C319 491 307 498 295 492 L286 481 L277 504 C272 531 269 567 269 611 C269 656 262 700 249 739 L284 754 L281 766 L248 766 C233 766 221 762 212 754 L204 754 C202 687 199 624 200 560 C201 624 198 687 196 754 L188 754 C179 762 167 766 152 766 L119 766 L116 754 L151 739 C138 700 131 656 131 611 C131 567 128 531 123 504 L114 481 L105 492 C93 498 81 491 75 477 L69 454 C53 441 47 424 53 406 L67 365 C67 326 71 292 78 269 L95 211 C98 199 106 191 118 184 L170 155 L168 134 C158 129 153 118 151 101 C150 94 153 90 158 89 L158 78 C158 49 175 30 200 30 Z" />
-    </g>
-  `;
-}
-
-function renderBodyDetails(x, view) {
-  const details =
-    view === "front"
-      ? `
-        <path d="M169 83 C180 91 220 91 231 83 M169 105 C177 130 223 130 231 105" />
-        <path d="M144 210 C154 242 152 272 129 300 M256 210 C246 242 248 272 271 300" />
-        <path d="M162 330 L200 350 L238 330 M200 350 L200 494" />
-        <circle cx="200" cy="292" r="4" />
-        <path d="M157 615 C166 623 181 623 190 615 M210 615 C219 623 234 623 243 615" />
-        <path d="M75 454 C65 461 59 472 58 486 M87 455 C80 470 78 486 83 499 M102 444 C98 460 100 478 110 491" />
-        <path d="M325 454 C335 461 341 472 342 486 M313 455 C320 470 322 486 317 499 M298 444 C302 460 300 478 290 491" />
-        <path d="M121 755 C132 761 155 761 171 756 M279 755 C268 761 245 761 229 756" />
-      `
-      : `
-        <path d="M170 85 C181 96 219 96 230 85" />
-        <path d="M148 215 C150 252 139 279 119 305 M252 215 C250 252 261 279 281 305" />
-        <path d="M161 345 C169 384 231 384 239 345 M200 359 L200 490" />
-        <path d="M156 246 C170 240 183 235 194 225 M206 225 C217 235 230 240 244 246" />
-        <path d="M75 454 C65 461 59 472 58 486 M87 455 C80 470 78 486 83 499 M102 444 C98 460 100 478 110 491" />
-        <path d="M325 454 C335 461 341 472 342 486 M313 455 C320 470 322 486 317 499 M298 444 C302 460 300 478 290 491" />
-        <path d="M121 755 C132 761 155 761 171 756 M279 755 C268 761 245 761 229 756" />
-      `;
-
-  return `
-    <g class="body-detail" transform="translate(${x} 0)">
-      ${details}
     </g>
   `;
 }
