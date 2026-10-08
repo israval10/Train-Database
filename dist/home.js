@@ -221,20 +221,15 @@ async function init() {
 
 function renderMuscleMap() {
   els.map.innerHTML = `
-    <svg class="muscle-diagram" viewBox="0 0 800 820" role="img" aria-labelledby="muscle-map-title">
+    <svg class="muscle-diagram" viewBox="0 0 600 696" role="img" aria-labelledby="muscle-map-title">
       <title id="muscle-map-title">${copy[state.lang].atlasAria}</title>
+      <image class="body-reference-image" href="assets/body-reference.png" x="0" y="0" width="600" height="696" preserveAspectRatio="none" alt="" />
       ${renderSpecialControl()}
-      <g class="body-view" aria-label="${copy[state.lang].front}">
-        ${renderBodyBase(0)}
-        ${renderZones("front")}
-        ${renderBodyDetails(0, "front")}
-        <text class="view-label" x="200" y="790">${copy[state.lang].front}</text>
-      </g>
       <g class="body-view" aria-label="${copy[state.lang].backView}">
-        ${renderBodyBase(400)}
         ${renderZones("back")}
-        ${renderBodyDetails(400, "back")}
-        <text class="view-label" x="600" y="790">${copy[state.lang].backView}</text>
+      </g>
+      <g class="body-view" aria-label="${copy[state.lang].front}">
+        ${renderZones("front")}
       </g>
     </svg>
   `;
@@ -245,9 +240,9 @@ function renderSpecialControl() {
   const color = getSubgroupColor(subgroup);
   return `
     <g class="special-zone" data-group="cardio" data-subgroup="${subgroup}" tabindex="0" role="button" aria-label="${formatLabel(subgroup)}" style="--zone-color: ${color};">
-      <circle cx="400" cy="47" r="24" />
-      <path d="M400 61 C386 52 381 43 384 35 C387 28 396 29 400 36 C404 29 413 28 416 35 C419 43 414 52 400 61 Z" />
-      <text x="400" y="88">${formatLabel(subgroup)}</text>
+      <circle cx="300" cy="20" r="14" />
+      <path d="M300 28 C292 23 289 18 291 14 C293 10 298 11 300 15 C302 11 307 10 309 14 C311 18 308 23 300 28 Z" />
+      <text x="300" y="47">${formatLabel(subgroup)}</text>
     </g>
   `;
 }
@@ -291,7 +286,8 @@ function renderBodyDetails(x, view) {
 }
 
 function renderZones(view) {
-  return bodyZones
+  const transform = view === "front" ? "matrix(.75 0 0 .84878 300 0)" : "matrix(-.75 0 0 .84878 600 0)";
+  const paths = bodyZones
     .filter((zone) => zone.view === view)
     .map((zone) => {
       const color = getSubgroupColor(zone.subgroup);
@@ -299,6 +295,7 @@ function renderZones(view) {
       return `<path class="muscle-zone" data-group="${group}" data-subgroup="${zone.subgroup}" d="${zone.path}" style="--zone-color: ${color}; fill: ${color};" tabindex="0" role="button" aria-label="${formatLabel(zone.subgroup)}" />`;
     })
     .join("");
+  return `<g transform="${transform}">${paths}</g>`;
 }
 
 function bindEvents() {

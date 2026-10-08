@@ -422,6 +422,11 @@ button:focus-visible {
   max-height: 760px;
 }
 
+.body-reference-image {
+  display: block;
+  pointer-events: none;
+}
+
 .body-base {
   fill: transparent;
   stroke: #181714;
