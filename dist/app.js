@@ -451,14 +451,14 @@ function bindEvents() {
     const isCollapsed = els.filters.classList.toggle("is-collapsed");
     els.filterToggle.setAttribute("aria-expanded", String(!isCollapsed));
     els.filterBody.hidden = isCollapsed;
-    els.filterToggle.textContent = isCollapsed ? copy[state.lang].showFilters : copy[state.lang].hideFilters;
+    renderToggleIcon(els.filterToggle, isCollapsed, copy[state.lang].showFilters, copy[state.lang].hideFilters);
   });
 
   els.equipmentToggle.addEventListener("click", () => {
     const isCollapsed = els.equipmentPanel.classList.toggle("is-collapsed");
     els.equipmentToggle.setAttribute("aria-expanded", String(!isCollapsed));
     els.equipmentBody.hidden = isCollapsed;
-    els.equipmentToggle.textContent = isCollapsed ? copy[state.lang].showEquipment : copy[state.lang].hideEquipment;
+    renderToggleIcon(els.equipmentToggle, isCollapsed, copy[state.lang].showEquipment, copy[state.lang].hideEquipment);
   });
 
   window.addEventListener("resize", syncStickyOffset);
@@ -539,8 +539,8 @@ function translateStaticText() {
   els.equipmentLabel.textContent = text.equipment;
   els.equipmentSelectLabel.textContent = text.equipmentSelect;
   els.clearFilters.textContent = text.clear;
-  els.filterToggle.textContent = els.filterBody.hidden ? text.showFilters : text.hideFilters;
-  els.equipmentToggle.textContent = els.equipmentBody.hidden ? text.showEquipment : text.hideEquipment;
+  renderToggleIcon(els.filterToggle, els.filterBody.hidden, text.showFilters, text.hideFilters);
+  renderToggleIcon(els.equipmentToggle, els.equipmentBody.hidden, text.showEquipment, text.hideEquipment);
   els.loadMore.textContent = text.loadMore;
   els.emptyState.textContent = text.empty;
   els.closeDialog.setAttribute("aria-label", text.closeDetail);
@@ -565,6 +565,21 @@ function translateStaticText() {
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+}
+
+function renderToggleIcon(button, isCollapsed, showLabel, hideLabel) {
+  const label = isCollapsed ? showLabel : hideLabel;
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.innerHTML = isCollapsed ? getIconSvg("eye") : getIconSvg("x");
+}
+
+function getIconSvg(icon) {
+  const paths = {
+    eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>',
+    x: '<path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>',
+  };
+  return `<svg class="toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[icon]}</svg>`;
 }
 
 function renderCategoryChips() {

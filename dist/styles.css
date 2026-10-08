@@ -188,13 +188,26 @@ main {
 
 .filter-toggle {
   flex: 0 0 auto;
+  display: inline-grid;
+  width: 42px;
   min-height: 38px;
+  place-items: center;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfaf7;
   color: var(--accent-strong);
   font-weight: 900;
-  padding: 0 12px;
+  padding: 0;
+}
+
+.toggle-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
 }
 
 .filter-body,
