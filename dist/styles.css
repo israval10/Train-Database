@@ -424,20 +424,20 @@ button:focus-visible {
 
 .body-base {
   fill: transparent;
-  stroke: #d8cec4;
+  stroke: #181714;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.7;
+  stroke-width: 2.1;
 }
 
 .body-detail {
   fill: none;
   pointer-events: none;
-  stroke: #d8cec4;
-  opacity: 0.72;
+  stroke: #181714;
+  opacity: 0.9;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.4;
+  stroke-width: 1.9;
 }
 
 .muscle-zone,
